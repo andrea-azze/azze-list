@@ -1,0 +1,1876 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B1E22">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>AZZE LIST</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" href="./icon-192.png">
+<style>
+  :root{
+    --bg:#0B1E22; --surface:#12292E; --surface-2:#17343A;
+    --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.18);
+    --text:#EAF2F1; --muted:#8CA3A6; --accent:#F5C443; --accent-ink:#1A1204;
+    --ok:#3DDC84; --no:#FF6B6B; --buy:#6BB8FF;
+    --radius:14px; --pad:16px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased;
+    padding-bottom:calc(78px + env(safe-area-inset-bottom));min-height:100vh;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 var(--pad)}
+
+  .top{padding:26px 0 18px;border-bottom:1px solid var(--line);margin-bottom:18px}
+  .top .wrap{display:flex;align-items:flex-start;gap:12px}
+  .top .who{flex:1;min-width:0}
+  .cartbtn{position:relative;flex:none;width:46px;height:46px;border-radius:50%;background:var(--surface-2);
+    border:1px solid var(--line-strong);color:var(--muted);display:grid;place-items:center;cursor:pointer}
+  .cartbtn.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .cartbadge{position:absolute;top:-4px;right:-4px;background:var(--accent);color:var(--accent-ink);
+    font-size:11px;font-weight:700;min-width:20px;height:20px;border-radius:99px;display:grid;place-items:center;
+    padding:0 5px;border:2px solid var(--bg)}
+  .cartbtn.on .cartbadge{background:var(--bg);color:var(--accent)}
+  .wordmark{display:inline-block;font-size:27px;line-height:1;font-weight:200;letter-spacing:.115em;
+    padding-bottom:9px;border-bottom:3px solid var(--accent)}
+  .wordmark b{font-weight:200}
+  .tagline{margin:11px 0 0;color:var(--muted);font-size:13.5px;letter-spacing:.01em}
+  .credit{margin:36px 0 0;padding-top:18px;border-top:1px solid var(--line);text-align:center}
+  .credit span{display:block;color:#5F7A7E;font-size:12px;letter-spacing:.03em}
+  .credit .ver{margin-top:3px;font-size:11px;color:#42575B}
+
+  h2{font-size:19px;letter-spacing:-.02em;margin:0 0 12px;font-weight:600}
+  .sub{color:var(--muted);font-size:13px;margin:-6px 0 14px}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:18px}
+  .row{display:flex;gap:8px;align-items:center}
+  .grow{flex:1;min-width:0}
+  .hidden{display:none !important}
+
+  input,select,button{font:inherit;color:inherit}
+  input[type=text],input[type=number],select{
+    background:var(--surface-2);border:1px solid var(--line);border-radius:10px;
+    padding:11px 12px;width:100%;appearance:none;-webkit-appearance:none;
+  }
+  select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+    background-position:calc(100% - 17px) 50%,calc(100% - 12px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
+  input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  input::placeholder{color:#5F7A7E}
+
+  .btn{background:var(--surface-2);border:1px solid var(--line-strong);border-radius:10px;padding:11px 14px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .btn:active{transform:translateY(1px)}
+  .btn-primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+  .btn-ghost{background:transparent;border-color:var(--line)}
+  .btn-sm{padding:8px 11px;font-size:14px}
+  .btn-danger{color:var(--no);border-color:rgba(255,107,107,.35)}
+  .icon-btn{background:transparent;border:0;padding:8px;cursor:pointer;color:var(--muted);border-radius:8px}
+  .icon-btn:active{background:var(--surface-2)}
+  svg{display:block}
+
+  /* --- gruppi / categorie --- */
+  .group{border:1px solid var(--line);border-radius:var(--radius);margin-bottom:14px;background:var(--surface)}
+  .ghead{
+    position:sticky;top:0;z-index:3;
+    display:flex;align-items:center;gap:9px;padding:13px 10px 13px 12px;cursor:pointer;user-select:none;
+    background:#081619;border-radius:13px 13px 0 0;
+    border-bottom:1px solid var(--line-strong);box-shadow:0 6px 14px -10px rgba(0,0,0,.9);
+  }
+  .group.closed .ghead{border-radius:13px;border-bottom:0}
+  .ghead .chev{color:var(--accent);transition:transform .18s ease;flex:none}
+  .ghead.open .chev{transform:rotate(90deg)}
+  .gname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+    font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+  .gcount{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;flex:none}
+  .gbar{height:4px;background:var(--surface-2);margin:0 12px 10px}
+  .gbar span{display:block;height:100%;background:var(--ok);border-radius:99px;transition:width .25s ease}
+  .gbody{padding:2px 12px 4px}
+  .group.empty-cat .gname{color:var(--muted)}
+
+  ul.items{list-style:none;margin:0;padding:0}
+  ul.items li{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 2px;border-bottom:1px solid var(--line)}
+  ul.items li:last-child{border-bottom:0}
+  .item-name{flex:1;min-width:110px;letter-spacing:-.01em}
+  .item.packed .item-name{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--ok)}
+  .item.skip .item-name{color:#5F7A7E;text-decoration:line-through}
+  .item.buy .item-name{color:var(--buy)}
+
+  .qty{display:flex;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;overflow:hidden;flex:none}
+  .qty button{background:transparent;border:0;padding:6px 11px;cursor:pointer;color:var(--muted);font-size:16px;line-height:1}
+  .qty .val{min-width:34px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600;color:var(--text);padding:6px 2px}
+  .qty button:active{background:rgba(255,255,255,.06)}
+
+  .acts{display:flex;gap:6px;margin-left:auto;flex:none}
+  .act{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:transparent;border:1.5px solid var(--line-strong);color:var(--muted)}
+  .act.sm{width:32px;height:32px}
+  .act.ok.on{background:var(--ok);border-color:var(--ok);color:#062B15}
+  .act.no.on{background:var(--no);border-color:var(--no);color:#2B0606}
+  .act.buy.on{background:var(--buy);border-color:var(--buy);color:#04203B}
+
+  .trip{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px;cursor:pointer}
+  .trip h3{margin:0;font-size:17px;letter-spacing:-.02em;font-weight:600}
+  .trip .meta{color:var(--muted);font-size:13px;margin-top:3px}
+  .bar{height:6px;border-radius:99px;background:var(--surface-2);margin-top:11px;overflow:hidden}
+  .bar span{display:block;height:100%;background:var(--ok);border-radius:99px;transition:width .25s ease}
+  .trip.done .bar span{background:var(--accent)}
+
+  .detail-head{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .detail-head h2{margin:0;flex:1}
+
+  .empty{color:var(--muted);font-size:14px;padding:18px 2px;border-top:1px solid var(--line)}
+  .empty strong{display:block;color:var(--text);font-weight:600;margin-bottom:3px}
+  .gbody .empty{border-top:0;padding:14px 0}
+
+  nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(11,30,34,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:8px 0 calc(8px + env(safe-area-inset-bottom))}
+  nav.tabs .wrap{display:flex;gap:6px}
+  .tab{flex:1;background:transparent;border:0;cursor:pointer;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;border-radius:10px;font-size:11px;font-weight:600}
+  .tab.on{color:var(--accent)}
+  .badge{position:absolute;transform:translate(14px,-6px);background:var(--accent);color:var(--accent-ink);font-size:10px;font-weight:700;min-width:17px;height:17px;border-radius:99px;display:grid;place-items:center;padding:0 4px}
+
+  .scrim{position:fixed;inset:0;background:rgba(2,10,12,.72);display:grid;place-items:center;padding:20px;z-index:40}
+  .modal{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line-strong);border-radius:16px;padding:18px}
+  .modal h3{margin:0 0 6px;font-size:18px;letter-spacing:-.02em;font-weight:600}
+  .modal p{margin:0 0 14px;color:var(--muted);font-size:14px}
+  .modal label{display:block;font-size:13px;color:var(--muted);margin:12px 0 5px}
+  .modal .row{margin-top:16px}
+  .modal .row .btn{flex:1;text-align:center}
+
+  .seg{display:flex;gap:4px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:4px;margin-bottom:10px}
+  .seg button{flex:1;background:transparent;border:0;color:var(--muted);font-size:13px;font-weight:600;padding:9px 4px;border-radius:8px;cursor:pointer;white-space:nowrap}
+  .seg button.on{background:var(--surface-2);color:var(--text)}
+  .searchbox{margin-bottom:12px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:15px;margin-bottom:14px}
+  .card h3{margin:0 0 4px;font-size:16px;letter-spacing:-.02em;font-weight:600}
+  .card p{margin:0 0 12px;color:var(--muted);font-size:13.5px;line-height:1.4}
+  .report{border-radius:11px;padding:12px 13px;font-size:13.5px;line-height:1.5;margin-bottom:12px}
+  .report.ok{background:rgba(61,220,132,.10);border:1px solid rgba(61,220,132,.35)}
+  .report.ko{background:rgba(255,107,107,.10);border:1px solid rgba(255,107,107,.35)}
+  .report strong{display:block;margin-bottom:5px;font-weight:600}
+  .report ul{margin:6px 0 0;padding-left:18px}
+  .report li{margin-bottom:3px}
+  .report .more{margin:8px 0 0}
+  .filename{font-size:13px;color:var(--muted);margin-bottom:10px;word-break:break-all}
+
+  .banner{display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(245,196,67,.10);border:1px solid rgba(245,196,67,.32);border-radius:var(--radius);padding:12px 12px 12px 14px;margin-bottom:18px}
+  .banner div:first-child{flex:1;min-width:150px;line-height:1.3}
+  .banner strong{display:block;font-size:15px;letter-spacing:-.01em;font-weight:600}
+  .banner span{color:var(--muted);font-size:13px}
+
+  .toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--accent);color:var(--accent-ink);font-weight:600;font-size:14px;padding:10px 16px;border-radius:99px;z-index:50;box-shadow:0 8px 24px rgba(0,0,0,.4);max-width:90vw;text-align:center}
+  @media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="who">
+      <div class="wordmark"><b>AZZE</b> LIST</div>
+      <p class="tagline">Impossibile dimenticare qualcosa, ora.</p>
+    </div>
+    <button class="cartbtn" data-action="open-settings" aria-label="Impostazioni">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 00.3 1.8l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.8-.3 1.7 1.7 0 00-1 1.5v.2a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.8.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.8 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1A1.7 1.7 0 004.6 9a1.7 1.7 0 00-.3-1.8l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.8.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.8-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.8V9a1.7 1.7 0 001.5 1h.2a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+    </button>
+    <button class="cartbtn" data-action="open-spesa" aria-label="Da comprare">
+      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.4 11.3a2 2 0 002 1.7h7.7a2 2 0 002-1.6L21 8H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>
+      <span class="cartbadge hidden" id="cartBadge">0</span>
+    </button>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div id="backupBanner" class="banner hidden">
+    <div><strong>Fai un backup</strong><span id="backupWhen"></span></div>
+    <button class="btn btn-sm btn-primary" data-action="export">Salva ora</button>
+    <button class="icon-btn" data-action="backup-later" aria-label="Ricordamelo dopo">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+
+  <!-- ============ VIAGGI ============ -->
+  <section id="tab-viaggi">
+    <div id="tripsPane">
+      <h2>I tuoi viaggi</h2>
+      <p class="sub">Parti da una lista, poi spunta cosa hai messo in valigia.</p>
+      <div class="panel">
+        <div class="row" style="margin-bottom:8px">
+          <input type="text" id="tripName" class="grow" placeholder="Nome (es. 3 giorni dalla fidanzata)">
+        </div>
+        <div class="row">
+          <select id="tripBase" class="grow"></select>
+          <button class="btn btn-primary" data-action="trip-create">Crea</button>
+        </div>
+      </div>
+      <div id="tripsGrid"></div>
+    </div>
+
+    <div id="tripPane" class="hidden">
+      <div class="detail-head">
+        <button class="icon-btn" data-action="trip-back" aria-label="Torna ai viaggi">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h2 id="tripTitle">Viaggio</h2>
+        <button class="btn btn-sm" data-action="trip-save">Salva</button>
+        <button class="icon-btn" data-action="trip-delete" aria-label="Elimina viaggio">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+        </button>
+      </div>
+      <p class="sub" id="tripMeta"></p>
+      <div class="bar" style="margin-bottom:16px"><span id="tripBar" style="width:0%"></span></div>
+
+      <div class="row" style="gap:8px;margin-bottom:12px">
+        <button class="btn btn-ghost btn-sm grow" data-action="trip-reset">Azzera spunte</button>
+        <button class="btn btn-ghost btn-sm grow" data-action="trip-template">Salva come lista</button>
+      </div>
+
+      <div class="seg" id="tripFilter">
+        <button data-action="trip-filter" data-v="all">Tutto</button>
+        <button data-action="trip-filter" data-v="noskip">Senza esclusi</button>
+        <button data-action="trip-filter" data-v="todo">Da prendere</button>
+      </div>
+
+      <input type="text" id="searchTrip" class="searchbox" placeholder="Cerca in questo viaggio…">
+
+      <div id="tripItems"></div>
+
+      <div class="panel" style="margin-top:18px">
+        <div class="row" style="margin-bottom:8px">
+          <input type="text" id="tripAddName" class="grow" placeholder="Aggiungi solo a questo viaggio">
+        </div>
+        <div class="row" style="margin-bottom:8px">
+          <select id="tripAddCat" class="grow"></select>
+        </div>
+        <div class="row">
+          <select id="tripAddQty" class="grow"></select>
+          <input type="number" min="1" id="tripAddCustom" class="hidden" style="max-width:90px" placeholder="qtà">
+          <button class="btn btn-primary" data-action="trip-add-item">Aggiungi</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LISTE ============ -->
+  <section id="tab-liste" class="hidden">
+    <h2>Le tue liste</h2>
+    <p class="sub">I modelli che riusi ogni volta: valigia, padel, gara.</p>
+
+    <div class="panel">
+      <div class="row" style="margin-bottom:12px">
+        <select id="listSelect" class="grow"></select>
+        <button class="icon-btn" data-action="list-rename" aria-label="Rinomina lista">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+        </button>
+        <button class="icon-btn" data-action="list-delete" aria-label="Elimina lista">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>
+        </button>
+      </div>
+
+      <div class="row" style="margin-bottom:8px">
+        <input type="text" id="newCatName" class="grow" placeholder="Nuova categoria (es. medicine)">
+        <button class="btn btn-sm" data-action="cat-create">Crea</button>
+      </div>
+      <div class="row" style="margin-bottom:14px">
+        <select id="catalogPick" class="grow"></select>
+        <button class="btn btn-sm" data-action="cat-insert">Inserisci</button>
+      </div>
+
+      <div class="row" style="margin-bottom:8px">
+        <input type="text" id="itemName" class="grow" placeholder="Cosa aggiungi? (es. spazzolino)">
+      </div>
+      <div class="row" style="margin-bottom:8px">
+        <select id="itemCat" class="grow"></select>
+      </div>
+      <div class="row">
+        <select id="itemQty" class="grow"></select>
+        <input type="number" min="1" id="itemCustom" class="hidden" style="max-width:90px" placeholder="qtà">
+        <button class="btn btn-primary" data-action="item-add">Aggiungi</button>
+      </div>
+    </div>
+
+    <input type="text" id="searchList" class="searchbox" placeholder="Cerca nella lista…">
+
+    <div id="listItems"></div>
+
+    <div class="panel" style="margin-top:22px">
+      <div class="row" style="margin-bottom:8px">
+        <input type="text" id="newListName" class="grow" placeholder="Nuova lista (es. gare corsa)">
+      </div>
+      <div class="row">
+        <select id="newListBase" class="grow"></select>
+        <button class="btn btn-primary" data-action="list-create">Crea lista</button>
+      </div>
+    </div>
+
+    <input type="file" id="importFile" accept="application/json" class="hidden">
+  </section>
+
+  <!-- ============ CATEGORIE ============ -->
+  <section id="tab-categorie" class="hidden">
+    <h2>Categorie di base</h2>
+    <p class="sub">Blocchi pronti da infilare in qualsiasi lista. Quando li inserisci diventano una copia, modificabile senza toccare l'originale.</p>
+
+    <div class="panel">
+      <div class="row" style="margin-bottom:14px">
+        <input type="text" id="newCatalogName" class="grow" placeholder="Nuova categoria di base (es. cose da padel)">
+        <button class="btn btn-sm" data-action="catalog-create">Crea</button>
+      </div>
+      <div class="row" style="margin-bottom:8px">
+        <input type="text" id="catalogItemName" class="grow" placeholder="Cosa ci metti dentro?">
+      </div>
+      <div class="row" style="margin-bottom:8px">
+        <select id="catalogItemCat" class="grow"></select>
+      </div>
+      <div class="row">
+        <select id="catalogQty" class="grow"></select>
+        <input type="number" min="1" id="catalogCustom" class="hidden" style="max-width:90px" placeholder="qtà">
+        <button class="btn btn-primary" data-action="catalog-item-add">Aggiungi</button>
+      </div>
+    </div>
+
+    <div id="catalogItems"></div>
+  </section>
+
+  <!-- ============ SPESA ============ -->
+  <section id="tab-spesa" class="hidden">
+    <h2>Da comprare</h2>
+    <p class="sub">Quello che è finito, in un posto solo.</p>
+    <div class="panel">
+      <div class="row" style="margin-bottom:8px">
+        <input type="text" id="shopName" class="grow" placeholder="Cosa serve comprare?">
+      </div>
+      <div class="row">
+        <select id="shopQty" class="grow"></select>
+        <input type="number" min="1" id="shopCustom" class="hidden" style="max-width:90px" placeholder="qtà">
+        <button class="btn btn-primary" data-action="shop-add">Aggiungi</button>
+      </div>
+    </div>
+    <ul class="items" id="shopItems"></ul>
+    <div class="row" id="shopClearRow" style="margin-top:16px">
+      <button class="btn btn-ghost btn-sm grow btn-danger" data-action="shop-clear">Svuota il carrello</button>
+    </div>
+  </section>
+
+  <!-- ============ IMPOSTAZIONI ============ -->
+  <section id="tab-impostazioni" class="hidden">
+    <h2>Impostazioni</h2>
+    <p class="sub">Backup, esportazione e importazione dei dati.</p>
+
+    <div class="card">
+      <h3>Backup completo</h3>
+      <p>Un file .json con tutto: liste, categorie di base, viaggi e spesa. È la copia da tenere da parte, non si modifica a mano.</p>
+      <div class="row" style="gap:8px">
+        <button class="btn btn-primary btn-sm grow" data-action="export">Esporta .json</button>
+        <button class="btn btn-ghost btn-sm grow" data-action="import">Importa .json</button>
+      </div>
+      <p id="lastBackup" style="margin:12px 0 0"></p>
+    </div>
+
+    <div class="card">
+      <h3>Foglio Excel</h3>
+      <p>Esporta liste e categorie di base in .xlsx, modificalo dove ti è comodo, poi rileggilo qui. Viaggi e spesa non ci finiscono dentro e non vengono toccati.</p>
+      <button class="btn btn-primary btn-sm grow" data-action="xlsx-export" style="width:100%;margin-bottom:14px">Esporta .xlsx</button>
+      <button class="btn btn-sm grow" data-action="xlsx-pick" style="width:100%">Scegli un file da importare</button>
+      <input type="file" id="xlsxFile" accept=".xlsx,.csv" class="hidden">
+      <div id="xlsxPanel" class="hidden" style="margin-top:14px">
+        <p class="filename" id="xlsxName"></p>
+        <div id="xlsxReport"></div>
+        <div class="row" style="gap:8px">
+          <button class="btn btn-sm grow" data-action="xlsx-check">Prova</button>
+          <button class="btn btn-primary btn-sm grow hidden" data-action="xlsx-apply">Importa</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Ricomincia da zero</h3>
+      <p>Cancella tutto quello che c'è dentro l'app su questo dispositivo: liste, categorie di base, viaggi e spesa. Torna com'era appena installata. Non si può annullare, quindi fai prima un backup.</p>
+      <button class="btn btn-sm btn-danger" data-action="reset-all" style="width:100%">Cancella tutti i dati</button>
+    </div>
+  </section>
+
+  <div class="credit"><span>Powered by Andrea Azzerboni</span><span class="ver">versione 1.3</span></div>
+
+</main>
+
+<nav class="tabs">
+  <div class="wrap">
+    <button class="tab on" data-tab="viaggi">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V4h6v3"/><path d="M9 20V7M15 20V7"/></svg>
+      Viaggi
+    </button>
+    <button class="tab" data-tab="liste">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>
+      Liste
+    </button>
+    <button class="tab" data-tab="categorie">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0l-7.2-7.2A2 2 0 013 12V5a2 2 0 012-2h7a2 2 0 011.4.6l7.2 7.2a2 2 0 010 2.6z"/><circle cx="7.5" cy="7.5" r="1.3"/></svg>
+      Categorie
+    </button>
+  </div>
+</nav>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- storage ---------------- */
+const KEY = "andrea-parte:v1";
+const store = {
+  async load(){
+    if (window.storage && window.storage.get){
+      try { const r = await window.storage.get(KEY); return r ? JSON.parse(r.value) : null; } catch(e){ return null; }
+    }
+    try { const raw = localStorage.getItem(KEY); return raw ? JSON.parse(raw) : null; } catch(e){ return null; }
+  },
+  async save(data){
+    const s = JSON.stringify(data);
+    if (window.storage && window.storage.set){
+      try { await window.storage.set(KEY, s); return; } catch(e){}
+    }
+    try { localStorage.setItem(KEY, s); } catch(e){}
+  }
+};
+
+const uid = () => Math.random().toString(36).slice(2,9) + Date.now().toString(36).slice(-3);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s).trim().toLowerCase();
+const DAY = 24*60*60*1000;
+const NONE = "none";
+
+let state = null;
+let qList = "", qTrip = "";
+const seed = () => ({
+  lists: ["Valigia fuori casa","Valigia weekend","Valigia viaggio","Padel","Gara di corsa","Serata / evento"]
+    .map(n => ({ id:uid(), name:n, cats:[], items:[], closed:{} })),
+  catalog: [],
+  trips: [],
+  shopping: [],
+  backup: { date:null, n:0, lastAt:0, lastName:null, snooze:0 },
+  ui: { tab:"viaggi", listId:null, tripId:null, catClosed:{} }
+});
+const save = () => store.save(state);
+const $ = s => document.querySelector(s);
+
+/* ---------------- toast + dialog ---------------- */
+function toast(msg){
+  const old = document.querySelector(".toast"); if (old) old.remove();
+  const t = document.createElement("div"); t.className = "toast"; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 2000);
+}
+
+/* opts: {title, text, value?, type?, placeholder?, select?:{label,options:[{v,label}],value}, ok, danger}
+   ritorna: true | stringa | {text, select} | null */
+function dialog(opts){
+  return new Promise(resolve => {
+    const scrim = document.createElement("div");
+    scrim.className = "scrim";
+    const hasInput = typeof opts.value === "string";
+    const sel = opts.select;
+    scrim.innerHTML =
+      '<div class="modal" role="dialog" aria-modal="true">' +
+        '<h3>'+esc(opts.title)+'</h3>' +
+        (opts.text ? '<p>'+esc(opts.text)+'</p>' : '') +
+        (hasInput ? '<input type="'+(opts.type||"text")+'" id="dlgInput" value="'+esc(opts.value)+'" placeholder="'+esc(opts.placeholder||"")+'">' : '') +
+        (sel ? '<label for="dlgSelect">'+esc(sel.label||"Categoria")+'</label><select id="dlgSelect">' +
+            sel.options.map(o => '<option value="'+esc(o.v)+'"'+(o.v===sel.value?" selected":"")+'>'+esc(o.label)+'</option>').join("") +
+          '</select>' : '') +
+        '<div class="row">' +
+          '<button class="btn btn-ghost" data-r="0">Annulla</button>' +
+          '<button class="btn '+(opts.danger?"btn-danger":"btn-primary")+'" data-r="1">'+esc(opts.ok||"Conferma")+'</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(scrim);
+    const input = scrim.querySelector("#dlgInput");
+    const select = scrim.querySelector("#dlgSelect");
+    if (input){ input.focus(); input.select(); }
+    const done = ok => {
+      let out = null;
+      if (ok){
+        if (sel) out = { text: input ? input.value.trim() : "", select: select.value };
+        else if (hasInput) out = input.value.trim() || null;
+        else out = true;
+        if (sel && hasInput && !out.text) out = null;
+      }
+      scrim.remove(); resolve(out);
+    };
+    scrim.addEventListener("click", e => {
+      if (e.target === scrim) return done(false);
+      const b = e.target.closest("button[data-r]"); if (!b) return;
+      done(b.dataset.r === "1");
+    });
+    scrim.addEventListener("keydown", e => {
+      if (e.key === "Enter" && hasInput){ e.preventDefault(); done(true); }
+      if (e.key === "Escape") done(false);
+    });
+  });
+}
+
+/* ---------------- quantità ---------------- */
+function fillQtySelect(sel){
+  let html = "";
+  for (let i=1;i<=10;i++) html += '<option value="'+i+'">'+i+'</option>';
+  sel.innerHTML = html + '<option value="custom">Altro…</option>';
+}
+function readQty(sel, custom){
+  if (sel.value === "custom"){ const n = parseInt(custom.value,10); return (n && n>0) ? n : 1; }
+  return parseInt(sel.value,10) || 1;
+}
+function resetQty(sel, custom){ sel.value = "1"; custom.value = ""; custom.classList.add("hidden"); }
+
+/* ---------------- spesa ---------------- */
+function shopAdd(name, qty, origin){
+  const hit = state.shopping.find(s => norm(s.name) === norm(name));
+  if (hit){
+    hit.qty = Math.max(hit.qty, qty);
+    if (origin && !hit.origins.includes(origin)) hit.origins.push(origin);
+    return;
+  }
+  state.shopping.push({ id:uid(), name:name.trim(), qty, origins: origin?[origin]:[], manual:!origin });
+}
+function shopRemoveOrigin(origin){
+  state.shopping = state.shopping.filter(s => {
+    if (!s.origins.includes(origin)) return true;
+    s.origins = s.origins.filter(o => o !== origin);
+    return s.manual || s.origins.length > 0;
+  });
+}
+const originKey = (tripId, itemId) => tripId + "/" + itemId;
+
+/* ---------------- backup ---------------- */
+function today(){
+  const d = new Date(), p = n => String(n).padStart(2,"0");
+  return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());
+}
+function nextBackupName(){
+  const b = state.backup, d = today();
+  const n = (b.date === d) ? (b.n||0)+1 : 1;
+  return { name:"azze-list-"+d+(n>1?"-"+n:"")+".json", date:d, n };
+}
+function markBackup(info){
+  Object.assign(state.backup, { date:info.date, n:info.n, lastAt:Date.now(), lastName:info.name, snooze:0 });
+  save();
+}
+async function doBackup(){
+  const info = nextBackupName();
+  const json = JSON.stringify(state, null, 2);
+  try {
+    const file = new File([json], info.name, { type:"application/json" });
+    if (navigator.canShare && navigator.canShare({ files:[file] })){
+      await navigator.share({ files:[file], title:info.name });
+      markBackup(info); render(); toast("Backup " + info.name);
+      return;
+    }
+  } catch(err){ if (err && err.name === "AbortError") return; }
+  const url = URL.createObjectURL(new Blob([json], { type:"application/json" }));
+  const link = document.createElement("a");
+  link.href = url; link.download = info.name; link.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 3000);
+  markBackup(info); render(); toast("Backup " + info.name);
+}
+function backupDue(){
+  const b = state.backup;
+  const haRoba = state.trips.length || state.shopping.length || state.lists.some(l => l.items.length);
+  if (!haRoba) return false;
+  if (b.snooze && Date.now() < b.snooze) return false;
+  if (!b.lastAt) return true;
+  return Date.now() - b.lastAt > 7*DAY;
+}
+function renderBanner(){
+  $("#backupBanner").classList.toggle("hidden", !backupDue());
+  const b = state.backup;
+  $("#backupWhen").textContent = b.lastAt
+    ? "Ultimo: "+b.lastName+", "+Math.round((Date.now()-b.lastAt)/DAY)+" giorni fa"
+    : "Non ne hai ancora fatto uno.";
+}
+
+/* ---------------- categorie ---------------- */
+function groupsOf(cats, items, keepEmpty){
+  const ids = new Set(cats.map(c => c.id));
+  const groups = cats.map(c => ({ id:c.id, name:c.name, real:true, items: items.filter(i => i.catId === c.id) }));
+  const orfani = items.filter(i => !i.catId || !ids.has(i.catId));
+  if (orfani.length) groups.push({ id:NONE, name:"Senza categoria", real:false, items:orfani });
+  return keepEmpty ? groups : groups.filter(g => g.items.length);
+}
+function catOptions(cats, selected){
+  return '<option value="">Senza categoria</option>' +
+    cats.map(c => '<option value="'+c.id+'"'+(c.id===selected?" selected":"")+'>'+esc(c.name)+'</option>').join("");
+}
+function fillCatSelect(el, cats){
+  const prev = el.value;
+  el.innerHTML = catOptions(cats, "");
+  if (prev && cats.some(c => c.id === prev)) el.value = prev;
+}
+
+/* ---------------- pezzi di markup ---------------- */
+const ICON = {
+  check:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  x:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
+  cart:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4h2l2.4 11.3a2 2 0 002 1.7h7.7a2 2 0 002-1.6L21 8H6"/><circle cx="10" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>',
+  trash:'<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></svg>',
+  pencil:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>',
+  book:'<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/></svg>',
+  chev:'<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>'
+};
+const qtyHtml = (ctx, id, qty) =>
+  '<div class="qty">' +
+    '<button data-action="qty" data-ctx="'+ctx+'" data-id="'+id+'" data-d="-1" aria-label="Meno uno">−</button>' +
+    '<button class="val" data-action="qty-set" data-ctx="'+ctx+'" data-id="'+id+'">'+qty+'</button>' +
+    '<button data-action="qty" data-ctx="'+ctx+'" data-id="'+id+'" data-d="1" aria-label="Più uno">+</button>' +
+  '</div>';
+
+function currentList(){ return state.lists.find(l => l.id === state.ui.listId) || null; }
+function currentTrip(){ return state.trips.find(t => t.id === state.ui.tripId) || null; }
+
+/* ---------------- render: liste ---------------- */
+function renderTabs(){
+  document.querySelectorAll(".tab").forEach(b => b.classList.toggle("on", b.dataset.tab === state.ui.tab));
+  ["viaggi","liste","categorie","spesa","impostazioni"].forEach(t => $("#tab-"+t).classList.toggle("hidden", t !== state.ui.tab));
+  document.querySelectorAll(".cartbtn")[1].classList.toggle("on", state.ui.tab === "spesa");
+  document.querySelectorAll(".cartbtn")[0].classList.toggle("on", state.ui.tab === "impostazioni");
+  const b = state.backup;
+  $("#lastBackup").textContent = b.lastAt
+    ? "Ultimo backup: " + b.lastName + " (" + Math.round((Date.now()-b.lastAt)/DAY) + " giorni fa)"
+    : "Non hai ancora fatto un backup.";
+  const n = state.shopping.length, badge = $("#cartBadge");
+  badge.textContent = n; badge.classList.toggle("hidden", !n);
+}
+
+function renderListSelect(){
+  const sel = $("#listSelect");
+  if (!state.lists.length){ sel.innerHTML = '<option value="">Nessuna lista</option>'; state.ui.listId = null; }
+  else {
+    if (!currentList()) state.ui.listId = state.lists[0].id;
+    sel.innerHTML = state.lists.map(l =>
+      '<option value="'+l.id+'"'+(l.id===state.ui.listId?" selected":"")+'>'+esc(l.name)+' ('+l.items.length+')</option>').join("");
+  }
+  const opts = '<option value="">Lista vuota</option>' +
+    state.lists.map(l => '<option value="'+l.id+'">'+esc(l.name)+'</option>').join("");
+  $("#tripBase").innerHTML = opts;
+  const nb = $("#newListBase"), prevNb = nb.value;
+  nb.innerHTML = '<option value="">Parti da zero</option>' +
+    state.lists.map(l => '<option value="'+l.id+'">Copia da: '+esc(l.name)+'</option>').join("");
+  if (prevNb && state.lists.some(l => l.id === prevNb)) nb.value = prevNb;
+}
+
+function renderListItems(){
+  const l = currentList(), box = $("#listItems");
+  if (!l){ box.innerHTML = ""; return; }
+  fillCatSelect($("#itemCat"), l.cats);
+
+  if (!l.items.length && !l.cats.length){
+    box.innerHTML = '<div class="empty"><strong>Lista vuota</strong>Crea una categoria, oppure aggiungi subito il primo oggetto.</div>';
+    return;
+  }
+  const q = norm(qList);
+  const groups = groupsOf(l.cats, l.items, true)
+    .map(g => Object.assign({}, g, { items: q ? g.items.filter(i => norm(i.name).includes(q)) : g.items }))
+    .filter(g => !q || g.items.length);
+  if (q && !groups.length){
+    box.innerHTML = '<div class="empty"><strong>Nessun risultato</strong>Niente che contenga “'+esc(qList.trim())+'”.</div>';
+    return;
+  }
+  box.innerHTML = groups.map(g => {
+    const open = q ? true : !l.closed[g.id];
+    const righe = g.items.length
+      ? '<ul class="items">' + g.items.map(it =>
+          '<li class="item">' +
+            '<span class="item-name">'+esc(it.name)+'</span>' +
+            qtyHtml("list", it.id, it.qty) +
+            '<div class="acts">' +
+              '<button class="icon-btn" data-action="item-edit" data-id="'+it.id+'" aria-label="Modifica">'+ICON.pencil+'</button>' +
+              '<button class="icon-btn" data-action="item-del" data-id="'+it.id+'" aria-label="Elimina">'+ICON.trash+'</button>' +
+            '</div>' +
+          '</li>').join("") + '</ul>'
+      : '<div class="empty">Categoria ancora vuota.</div>';
+    return '<div class="group'+(g.items.length?"":" empty-cat")+(open?"":" closed")+'">' +
+      '<div class="ghead'+(open?" open":"")+'" data-action="cat-toggle" data-ctx="list" data-id="'+g.id+'">' +
+        ICON.chev +
+        '<span class="gname">'+esc(g.name)+'</span>' +
+        '<span class="gcount">'+g.items.length+'</span>' +
+        (g.real ? '<button class="icon-btn" data-action="cat-to-catalog" data-id="'+g.id+'" aria-label="Salva tra le categorie di base">'+ICON.book+'</button>' +
+                  '<button class="icon-btn" data-action="cat-rename" data-id="'+g.id+'" aria-label="Rinomina categoria">'+ICON.pencil+'</button>' +
+                  '<button class="icon-btn" data-action="cat-del" data-id="'+g.id+'" aria-label="Elimina categoria">'+ICON.trash+'</button>' : '') +
+      '</div>' +
+      (open ? '<div class="gbody">'+righe+'</div>' : '') +
+    '</div>';
+  }).join("");
+}
+
+/* ---------------- render: viaggi ---------------- */
+function stats(items){
+  const total = items.length;
+  const skip = items.filter(i => i.status === "skip").length;
+  const packed = items.filter(i => i.status === "packed").length;
+  const target = total - skip;
+  return { total, skip, packed, target, pct: target ? Math.round(packed/target*100) : 0 };
+}
+
+function renderTrips(){
+  const box = $("#tripsGrid");
+  if (!state.trips.length){
+    box.innerHTML = '<div class="empty"><strong>Ancora nessun viaggio</strong>Dai un nome, scegli una lista e sei pronto.</div>';
+    return;
+  }
+  box.innerHTML = state.trips.map(t => {
+    const s = stats(t.items);
+    return '<button class="trip'+(s.target && s.packed===s.target?" done":"")+'" data-action="trip-open" data-id="'+t.id+'">' +
+      '<h3>'+esc(t.name)+'</h3>' +
+      '<div class="meta">'+s.packed+' di '+s.target+' presi'+(s.skip?' — '+s.skip+' esclusi':'')+'</div>' +
+      '<div class="bar"><span style="width:'+s.pct+'%"></span></div>' +
+    '</button>';
+  }).join("");
+}
+
+function renderTrip(){
+  const t = currentTrip();
+  if (!t){ state.ui.tripId = null; $("#tripPane").classList.add("hidden"); $("#tripsPane").classList.remove("hidden"); renderTrips(); return; }
+  $("#tripsPane").classList.add("hidden"); $("#tripPane").classList.remove("hidden");
+  fillCatSelect($("#tripAddCat"), t.cats);
+
+  const s = stats(t.items);
+  $("#tripTitle").textContent = t.name;
+  $("#tripMeta").textContent = s.packed+" di "+s.target+" presi" + (s.skip ? " — "+s.skip+" esclusi" : "");
+  $("#tripBar").style.width = s.pct+"%";
+
+  const box = $("#tripItems");
+  if (!t.items.length){
+    box.innerHTML = '<div class="empty"><strong>Niente in valigia</strong>Aggiungi qualcosa qui sotto, o crea il viaggio da una lista.</div>';
+    return;
+  }
+  const q = norm(qTrip);
+  const f = t.filter || "all";
+  document.querySelectorAll("#tripFilter button").forEach(b => b.classList.toggle("on", b.dataset.v === f));
+  const visibile = i =>
+    (f !== "noskip" || i.status !== "skip") &&
+    (f !== "todo" || !i.status) &&
+    (!q || norm(i.name).includes(q));
+
+  const groups = groupsOf(t.cats, t.items, false)
+    .map(g => Object.assign({}, g, { tutti:g.items, items: g.items.filter(visibile) }))
+    .filter(g => g.items.length);
+  if (!groups.length){
+    box.innerHTML = q
+      ? '<div class="empty"><strong>Nessun risultato</strong>Niente che contenga “'+esc(qTrip.trim())+'”.</div>'
+      : '<div class="empty"><strong>Tutto a posto</strong>Non è rimasto niente da prendere con questo filtro.</div>';
+    return;
+  }
+  box.innerHTML = groups.map(g => {
+    const open = (q || f !== "all") ? true : !t.closed[g.id];
+    const gs = stats(g.tutti);
+    const tuttiPresi = gs.target > 0 && gs.packed === gs.target;
+    const tuttiEsclusi = gs.total > 0 && gs.skip === gs.total;
+    const righe = '<ul class="items">' + g.items.map(it => {
+      const cls = "item" + (it.status==="packed"?" packed":it.status==="skip"?" skip":"") + (it.buy?" buy":"");
+      return '<li class="'+cls+'">' +
+        '<span class="item-name">'+esc(it.name)+'</span>' +
+        qtyHtml("trip", it.id, it.qty) +
+        '<div class="acts">' +
+          '<button class="act ok'+(it.status==="packed"?" on":"")+'" data-action="st" data-id="'+it.id+'" data-v="packed" aria-label="Preso">'+ICON.check+'</button>' +
+          '<button class="act no'+(it.status==="skip"?" on":"")+'" data-action="st" data-id="'+it.id+'" data-v="skip" aria-label="Non serve">'+ICON.x+'</button>' +
+          '<button class="act buy'+(it.buy?" on":"")+'" data-action="buy" data-id="'+it.id+'" aria-label="Finito, da comprare">'+ICON.cart+'</button>' +
+        '</div>' +
+      '</li>';
+    }).join("") + '</ul>';
+    return '<div class="group">' +
+      '<div class="ghead'+(open?" open":"")+'" data-action="cat-toggle" data-ctx="trip" data-id="'+g.id+'">' +
+        ICON.chev +
+        '<span class="gname">'+esc(g.name)+'</span>' +
+        '<span class="gcount">'+gs.packed+'/'+gs.target+'</span>' +
+        '<div class="acts">' +
+          '<button class="act ok sm'+(tuttiPresi?" on":"")+'" data-action="cat-status" data-id="'+g.id+'" data-v="packed" aria-label="Tutta la categoria presa">'+ICON.check+'</button>' +
+          '<button class="act no sm'+(tuttiEsclusi?" on":"")+'" data-action="cat-status" data-id="'+g.id+'" data-v="skip" aria-label="Categoria non serve">'+ICON.x+'</button>' +
+        '</div>' +
+      '</div>' +
+      '<div class="gbar"><span style="width:'+gs.pct+'%"></span></div>' +
+      (open ? '<div class="gbody">'+righe+'</div>' : '') +
+    '</div>';
+  }).join("");
+}
+
+function renderCatalog(){
+  const pick = $("#catalogPick"), prev = pick.value;
+  pick.innerHTML = state.catalog.length
+    ? '<option value="">Aggiungi una categoria di base…</option>' + state.catalog.map(c => '<option value="'+c.id+'">'+esc(c.name)+' ('+c.items.length+')</option>').join("")
+    : '<option value="">Nessuna categoria di base</option>';
+  if (prev && state.catalog.some(c => c.id === prev)) pick.value = prev;
+
+  const sel = $("#catalogItemCat"), prev2 = sel.value;
+  sel.innerHTML = state.catalog.length
+    ? state.catalog.map(c => '<option value="'+c.id+'">'+esc(c.name)+'</option>').join("")
+    : '<option value="">Crea prima una categoria</option>';
+  if (prev2 && state.catalog.some(c => c.id === prev2)) sel.value = prev2;
+
+  const box = $("#catalogItems");
+  if (!state.catalog.length){
+    box.innerHTML = '<div class="empty"><strong>Ancora nessuna categoria di base</strong>Creane una qui sopra, riempila, e poi la infili in tutte le liste che vuoi.</div>';
+    return;
+  }
+  box.innerHTML = state.catalog.map(c => {
+    const open = !state.ui.catClosed[c.id];
+    const righe = c.items.length
+      ? '<ul class="items">' + c.items.map(it =>
+          '<li class="item">' +
+            '<span class="item-name">'+esc(it.name)+'</span>' +
+            qtyHtml("catalog", it.id, it.qty) +
+            '<div class="acts">' +
+              '<button class="icon-btn" data-action="catalog-item-edit" data-id="'+it.id+'" data-cat="'+c.id+'" aria-label="Modifica">'+ICON.pencil+'</button>' +
+              '<button class="icon-btn" data-action="catalog-item-del" data-id="'+it.id+'" data-cat="'+c.id+'" aria-label="Elimina">'+ICON.trash+'</button>' +
+            '</div>' +
+          '</li>').join("") + '</ul>'
+      : '<div class="empty">Categoria ancora vuota.</div>';
+    return '<div class="group'+(c.items.length?"":" empty-cat")+(open?"":" closed")+'">' +
+      '<div class="ghead'+(open?" open":"")+'" data-action="catalog-toggle" data-id="'+c.id+'">' +
+        ICON.chev +
+        '<span class="gname">'+esc(c.name)+'</span>' +
+        '<span class="gcount">'+c.items.length+'</span>' +
+        '<button class="icon-btn" data-action="catalog-rename" data-id="'+c.id+'" aria-label="Rinomina">'+ICON.pencil+'</button>' +
+        '<button class="icon-btn" data-action="catalog-del" data-id="'+c.id+'" aria-label="Elimina">'+ICON.trash+'</button>' +
+      '</div>' +
+      (open ? '<div class="gbody">'+righe+'</div>' : '') +
+    '</div>';
+  }).join("");
+}
+
+function renderShop(){
+  const box = $("#shopItems");
+  $("#shopClearRow").classList.toggle("hidden", !state.shopping.length);
+  if (!state.shopping.length){
+    box.innerHTML = '<div class="empty"><strong>Non manca niente</strong>Segna col carrello quello che finisce e lo ritrovi qui.</div>';
+    return;
+  }
+  box.innerHTML = state.shopping.map(s =>
+    '<li class="item">' +
+      '<span class="item-name">'+esc(s.name)+'</span>' +
+      qtyHtml("shop", s.id, s.qty) +
+      '<div class="acts">' +
+        '<button class="act ok" data-action="shop-done" data-id="'+s.id+'" aria-label="Comprato">'+ICON.check+'</button>' +
+        '<button class="icon-btn" data-action="shop-del" data-id="'+s.id+'" aria-label="Rimuovi">'+ICON.trash+'</button>' +
+      '</div>' +
+    '</li>').join("");
+}
+
+function render(){
+  renderBanner();
+  renderTabs();
+  renderListSelect();
+  renderListItems();
+  renderCatalog();
+  if (state.ui.tripId) renderTrip();
+  else { $("#tripPane").classList.add("hidden"); $("#tripsPane").classList.remove("hidden"); renderTrips(); }
+  renderShop();
+}
+
+/* ---------------- azioni ---------------- */
+document.addEventListener("click", async e => {
+  const tabBtn = e.target.closest(".tab");
+  if (tabBtn){ state.ui.tab = tabBtn.dataset.tab; save(); render(); return; }
+
+  const el = e.target.closest("[data-action]");
+  if (!el) return;
+  const a = el.dataset.action, id = el.dataset.id;
+
+  /* --- liste --- */
+  if (a === "list-create"){
+    const inp = $("#newListName"), name = inp.value.trim();
+    if (!name) return toast("Scrivi un nome");
+    const base = state.lists.find(x => x.id === $("#newListBase").value);
+    const mappa = {};
+    const cats = base ? base.cats.map(c => { const nc = { id:uid(), name:c.name }; mappa[c.id] = nc.id; return nc; }) : [];
+    const items = base ? base.items.map(i => ({ id:uid(), name:i.name, qty:i.qty, catId: mappa[i.catId] || null })) : [];
+    const l = { id:uid(), name, cats, items, closed:{} };
+    state.lists.push(l); state.ui.listId = l.id; inp.value = ""; $("#newListBase").value = "";
+    save(); render(); toast(base ? "Lista copiata" : "Lista creata");
+  }
+  if (a === "list-rename"){
+    const l = currentList(); if (!l) return;
+    const name = await dialog({ title:"Rinomina lista", value:l.name, ok:"Salva" });
+    if (name){ l.name = name; save(); render(); }
+  }
+  if (a === "list-delete"){
+    const l = currentList(); if (!l) return;
+    const ok = await dialog({ title:"Eliminare “"+l.name+"”?", text:"Perderai categorie e oggetti dentro la lista. I viaggi già creati restano.", ok:"Elimina", danger:true });
+    if (ok){ state.lists = state.lists.filter(x => x.id !== l.id); state.ui.listId = null; save(); render(); toast("Lista eliminata"); }
+  }
+
+  /* --- categorie --- */
+  if (a === "cat-create"){
+    const l = currentList(); if (!l) return toast("Prima crea una lista");
+    const inp = $("#newCatName"), name = inp.value.trim();
+    if (!name) return toast("Scrivi un nome");
+    if (l.cats.some(c => norm(c.name) === norm(name))) return toast("Categoria già presente");
+    l.cats.push({ id:uid(), name }); inp.value = "";
+    save(); render(); toast("Categoria creata");
+  }
+  if (a === "cat-rename"){
+    const l = currentList(); if (!l) return;
+    const c = l.cats.find(x => x.id === id); if (!c) return;
+    const name = await dialog({ title:"Rinomina categoria", value:c.name, ok:"Salva" });
+    if (name){ c.name = name; save(); render(); }
+  }
+  if (a === "cat-del"){
+    const l = currentList(); if (!l) return;
+    const c = l.cats.find(x => x.id === id); if (!c) return;
+    const dentro = l.items.filter(i => i.catId === c.id).length;
+    const ok = await dialog({
+      title:"Eliminare “"+c.name+"”?",
+      text: dentro ? "I "+dentro+" oggetti dentro non si perdono: finiscono in Senza categoria." : "La categoria è vuota.",
+      ok:"Elimina", danger:true
+    });
+    if (ok){
+      l.items.forEach(i => { if (i.catId === c.id) i.catId = null; });
+      l.cats = l.cats.filter(x => x.id !== c.id);
+      save(); render();
+    }
+  }
+  if (a === "cat-toggle"){
+    const target = el.dataset.ctx === "trip" ? currentTrip() : currentList();
+    if (!target) return;
+    target.closed = target.closed || {};
+    if (target.closed[id]) delete target.closed[id]; else target.closed[id] = true;
+    save();
+    if (el.dataset.ctx === "trip") renderTrip(); else renderListItems();
+  }
+  if (a === "cat-status"){
+    const t = currentTrip(); if (!t) return;
+    const v = el.dataset.v;
+    const ids = new Set(t.cats.map(c => c.id));
+    const items = t.items.filter(i => id === NONE ? (!i.catId || !ids.has(i.catId)) : i.catId === id);
+    const giaTutti = items.length && items.every(i => i.status === v);
+    items.forEach(i => i.status = giaTutti ? null : v);
+    save(); render();
+  }
+
+  /* --- categorie di base (catalogo) --- */
+  if (a === "catalog-create"){
+    const inp = $("#newCatalogName"), name = inp.value.trim();
+    if (!name) return toast("Scrivi un nome");
+    if (state.catalog.some(c => norm(c.name) === norm(name))) return toast("Ne hai già una così");
+    state.catalog.push({ id:uid(), name, items:[] }); inp.value = "";
+    save(); render(); toast("Categoria di base creata");
+  }
+  if (a === "catalog-rename"){
+    const c = state.catalog.find(x => x.id === id); if (!c) return;
+    const name = await dialog({ title:"Rinomina categoria di base", value:c.name, ok:"Salva" });
+    if (name){ c.name = name; save(); render(); }
+  }
+  if (a === "catalog-del"){
+    const c = state.catalog.find(x => x.id === id); if (!c) return;
+    const ok = await dialog({
+      title:"Eliminare “"+c.name+"”?",
+      text:"Sparisce solo dalle categorie di base. Le copie già dentro le tue liste restano dove sono.",
+      ok:"Elimina", danger:true
+    });
+    if (ok){ state.catalog = state.catalog.filter(x => x.id !== c.id); save(); render(); toast("Eliminata"); }
+  }
+  if (a === "catalog-toggle"){
+    state.ui.catClosed = state.ui.catClosed || {};
+    if (state.ui.catClosed[id]) delete state.ui.catClosed[id]; else state.ui.catClosed[id] = true;
+    save(); renderCatalog();
+  }
+  if (a === "catalog-item-add"){
+    const c = state.catalog.find(x => x.id === $("#catalogItemCat").value);
+    if (!c) return toast("Prima crea una categoria");
+    const nameEl = $("#catalogItemName"), name = nameEl.value.trim();
+    if (!name) return toast("Scrivi cosa aggiungere");
+    c.items.push({ id:uid(), name, qty: readQty($("#catalogQty"), $("#catalogCustom")) });
+    nameEl.value = ""; resetQty($("#catalogQty"), $("#catalogCustom")); nameEl.focus();
+    save(); render();
+  }
+  if (a === "catalog-item-edit"){
+    const c = state.catalog.find(x => x.id === el.dataset.cat); if (!c) return;
+    const it = c.items.find(i => i.id === id); if (!it) return;
+    const res = await dialog({
+      title:"Modifica oggetto", value:it.name, ok:"Salva",
+      select:{ label:"Categoria di base", value:c.id, options: state.catalog.map(x => ({ v:x.id, label:x.name })) }
+    });
+    if (!res) return;
+    it.name = res.text;
+    if (res.select !== c.id){
+      const dest = state.catalog.find(x => x.id === res.select);
+      if (dest){ c.items = c.items.filter(i => i.id !== it.id); dest.items.push(it); }
+    }
+    save(); render();
+  }
+  if (a === "catalog-item-del"){
+    const c = state.catalog.find(x => x.id === el.dataset.cat); if (!c) return;
+    c.items = c.items.filter(i => i.id !== id); save(); render();
+  }
+
+  /* --- catalogo <-> liste --- */
+  if (a === "cat-insert"){
+    const l = currentList(); if (!l) return toast("Prima crea una lista");
+    const c = state.catalog.find(x => x.id === $("#catalogPick").value);
+    if (!c) return toast("Scegli una categoria di base");
+    if (l.cats.some(x => norm(x.name) === norm(c.name))) return toast("“"+c.name+"” è già in questa lista");
+    const nc = { id:uid(), name:c.name };
+    l.cats.push(nc);
+    c.items.forEach(i => l.items.push({ id:uid(), name:i.name, qty:i.qty, catId:nc.id }));
+    $("#catalogPick").value = "";
+    save(); render(); toast(c.items.length + " oggetti aggiunti");
+  }
+  if (a === "cat-to-catalog"){
+    const l = currentList(); if (!l) return;
+    const c = l.cats.find(x => x.id === id); if (!c) return;
+    const items = l.items.filter(i => i.catId === c.id);
+    const name = await dialog({
+      title:"Salva tra le categorie di base",
+      text:"La copi nel catalogo con i suoi "+items.length+" oggetti, così la riusi in altre liste.",
+      value:c.name, ok:"Salva"
+    });
+    if (!name) return;
+    const esistente = state.catalog.find(x => norm(x.name) === norm(name));
+    if (esistente){
+      const ok = await dialog({ title:"“"+name+"” esiste già", text:"Sostituisco il suo contenuto con questo?", ok:"Sostituisci", danger:true });
+      if (!ok) return;
+      esistente.items = items.map(i => ({ id:uid(), name:i.name, qty:i.qty }));
+    } else {
+      state.catalog.push({ id:uid(), name, items: items.map(i => ({ id:uid(), name:i.name, qty:i.qty })) });
+    }
+    save(); render(); toast("Salvata tra le categorie di base");
+  }
+
+  /* --- oggetti della lista --- */
+  if (a === "item-add"){
+    const l = currentList(); if (!l) return toast("Prima crea una lista");
+    const nameEl = $("#itemName"), name = nameEl.value.trim();
+    if (!name) return toast("Scrivi cosa aggiungere");
+    l.items.push({ id:uid(), name, qty: readQty($("#itemQty"), $("#itemCustom")), catId: $("#itemCat").value || null });
+    nameEl.value = ""; resetQty($("#itemQty"), $("#itemCustom")); nameEl.focus();
+    save(); render();
+  }
+  if (a === "item-edit"){
+    const l = currentList(); if (!l) return;
+    const it = l.items.find(i => i.id === id); if (!it) return;
+    const res = await dialog({
+      title:"Modifica oggetto", value:it.name, ok:"Salva",
+      select:{ label:"Categoria", value: it.catId || "",
+        options: [{v:"",label:"Senza categoria"}].concat(l.cats.map(c => ({v:c.id,label:c.name}))) }
+    });
+    if (res){ it.name = res.text; it.catId = res.select || null; save(); render(); }
+  }
+  if (a === "item-del"){
+    const l = currentList(); if (!l) return;
+    l.items = l.items.filter(i => i.id !== id); save(); render();
+  }
+
+  /* --- viaggi --- */
+  if (a === "trip-create"){
+    const nameEl = $("#tripName"), name = nameEl.value.trim();
+    if (!name) return toast("Dai un nome al viaggio");
+    const base = state.lists.find(l => l.id === $("#tripBase").value);
+    const mappa = {};
+    const cats = base ? base.cats.map(c => { const nc = { id:uid(), name:c.name }; mappa[c.id] = nc.id; return nc; }) : [];
+    const trip = {
+      id:uid(), name, createdAt:Date.now(), cats, closed:{},
+      items: base ? base.items.map(i => ({ id:uid(), name:i.name, qty:i.qty, catId: mappa[i.catId] || null, status:null, buy:false })) : []
+    };
+    state.trips.unshift(trip); nameEl.value = ""; state.ui.tripId = trip.id;
+    save(); render(); window.scrollTo(0,0);
+  }
+  if (a === "trip-filter"){
+    const t = currentTrip(); if (!t) return;
+    t.filter = el.dataset.v; save(); renderTrip();
+  }
+  if (a === "trip-reset"){
+    const t = currentTrip(); if (!t) return;
+    const ok = await dialog({
+      title:"Azzerare le spunte?",
+      text:"Oggetti e categorie restano al loro posto. Quello che hai segnato da comprare resta nella spesa.",
+      ok:"Azzera"
+    });
+    if (ok){ t.items.forEach(i => i.status = null); save(); render(); toast("Spunte azzerate"); }
+  }
+  if (a === "trip-template"){
+    const t = currentTrip(); if (!t) return;
+    const name = await dialog({ title:"Salva come lista", text:"Crea una lista riutilizzabile con questi oggetti e categorie, senza spunte.", value:t.name, ok:"Salva" });
+    if (!name) return;
+    const mappa = {};
+    const cats = t.cats.map(c => { const nc = { id:uid(), name:c.name }; mappa[c.id] = nc.id; return nc; });
+    const nuova = {
+      id:uid(), name, cats, closed:{},
+      items: t.items.map(i => ({ id:uid(), name:i.name, qty:i.qty, catId: mappa[i.catId] || null }))
+    };
+    state.lists.push(nuova); state.ui.listId = nuova.id;
+    save(); render(); toast("Lista “"+name+"” creata");
+  }
+  if (a === "trip-open"){ qTrip = ""; $("#searchTrip").value = ""; state.ui.tripId = id; save(); render(); window.scrollTo(0,0); }
+  if (a === "trip-back"){ state.ui.tripId = null; save(); render(); }
+  if (a === "trip-save"){ await save(); toast("Salvato"); }
+  if (a === "trip-delete"){
+    const t = currentTrip(); if (!t) return;
+    const ok = await dialog({ title:"Eliminare “"+t.name+"”?", text:"Le liste di partenza non vengono toccate.", ok:"Elimina", danger:true });
+    if (ok){
+      t.items.forEach(i => shopRemoveOrigin(originKey(t.id, i.id)));
+      state.trips = state.trips.filter(x => x.id !== t.id); state.ui.tripId = null;
+      save(); render(); toast("Viaggio eliminato");
+    }
+  }
+  if (a === "trip-add-item"){
+    const t = currentTrip(); if (!t) return;
+    const nameEl = $("#tripAddName"), name = nameEl.value.trim();
+    if (!name) return toast("Scrivi cosa aggiungere");
+    t.items.push({ id:uid(), name, qty: readQty($("#tripAddQty"), $("#tripAddCustom")), catId: $("#tripAddCat").value || null, status:null, buy:false });
+    nameEl.value = ""; resetQty($("#tripAddQty"), $("#tripAddCustom")); nameEl.focus();
+    save(); render();
+  }
+  if (a === "st"){
+    const t = currentTrip(); if (!t) return;
+    const it = t.items.find(i => i.id === id); if (!it) return;
+    it.status = it.status === el.dataset.v ? null : el.dataset.v;
+    save(); render();
+  }
+  if (a === "buy"){
+    const t = currentTrip(); if (!t) return;
+    const it = t.items.find(i => i.id === id); if (!it) return;
+    it.buy = !it.buy;
+    if (it.buy) shopAdd(it.name, it.qty, originKey(t.id, it.id));
+    else shopRemoveOrigin(originKey(t.id, it.id));
+    save(); render();
+    toast(it.buy ? "Aggiunto alla spesa" : "Tolto dalla spesa");
+  }
+
+  /* --- spesa --- */
+  if (a === "shop-add"){
+    const nameEl = $("#shopName"), name = nameEl.value.trim();
+    if (!name) return toast("Scrivi cosa serve");
+    shopAdd(name, readQty($("#shopQty"), $("#shopCustom")), null);
+    nameEl.value = ""; resetQty($("#shopQty"), $("#shopCustom")); nameEl.focus();
+    save(); render();
+  }
+  if (a === "shop-done" || a === "shop-del"){
+    const s = state.shopping.find(x => x.id === id); if (!s) return;
+    s.origins.forEach(o => {
+      const [tid, iid] = o.split("/");
+      const t = state.trips.find(x => x.id === tid); if (!t) return;
+      const it = t.items.find(x => x.id === iid); if (it) it.buy = false;
+    });
+    state.shopping = state.shopping.filter(x => x.id !== id);
+    save(); render();
+    toast(a === "shop-done" ? "Comprato" : "Rimosso");
+  }
+
+  /* --- quantità --- */
+  if (a === "qty" || a === "qty-set"){
+    const ctx = el.dataset.ctx;
+    let obj = null;
+    if (ctx === "list"){ const l = currentList(); obj = l && l.items.find(i => i.id === id); }
+    if (ctx === "trip"){ const t = currentTrip(); obj = t && t.items.find(i => i.id === id); }
+    if (ctx === "shop"){ obj = state.shopping.find(i => i.id === id); }
+    if (ctx === "catalog"){ state.catalog.some(c => (obj = c.items.find(i => i.id === id))); }
+    if (!obj) return;
+    if (a === "qty") obj.qty = Math.min(99, Math.max(1, obj.qty + parseInt(el.dataset.d,10)));
+    else {
+      const v = await dialog({ title:"Quantità", value:String(obj.qty), type:"number", ok:"Salva" });
+      if (!v) return;
+      obj.qty = Math.min(99, Math.max(1, parseInt(v,10) || 1));
+    }
+    if (ctx === "trip"){
+      const t = currentTrip();
+      const s = state.shopping.find(x => x.origins.includes(originKey(t.id, obj.id)));
+      if (s) s.qty = obj.qty;
+    }
+    save(); render();
+  }
+
+  if (a === "open-spesa"){
+    state.ui.tab = state.ui.tab === "spesa" ? "viaggi" : "spesa";
+    save(); render(); window.scrollTo(0,0);
+  }
+  if (a === "open-settings"){
+    state.ui.tab = state.ui.tab === "impostazioni" ? "viaggi" : "impostazioni";
+    save(); render(); window.scrollTo(0,0);
+  }
+  if (a === "reset-all"){
+    const ok = await dialog({
+      title:"Cancellare tutti i dati?",
+      text:"Spariscono liste, categorie di base, viaggi e spesa di questo dispositivo. L'app torna vuota come appena installata.",
+      ok:"Cancella tutto", danger:true
+    });
+    if (!ok) return;
+    const conferma = await dialog({
+      title:"Sicuro sicuro?",
+      text:"Ultima possibilità di annullare. Se non hai un backup, quello che c'è adesso è perso.",
+      ok:"Sì, cancella", danger:true
+    });
+    if (!conferma) return;
+    state = seed();
+    state.ui.tab = "impostazioni";
+    qList = ""; qTrip = ""; xlsxFogli = null; xlsxEsito = null; xlsxSpesa = null;
+    $("#xlsxPanel").classList.add("hidden");
+    save(); render(); toast("Dati cancellati");
+  }
+  if (a === "shop-clear"){
+    if (!state.shopping.length) return;
+    const ok = await dialog({ title:"Svuotare il carrello?", text:"Togli tutte le "+state.shopping.length+" cose da comprare. Le liste e i viaggi non cambiano.", ok:"Svuota", danger:true });
+    if (!ok) return;
+    state.shopping.forEach(s => s.origins.forEach(o => {
+      const [tid, iid] = o.split("/");
+      const t = state.trips.find(x => x.id === tid); if (!t) return;
+      const it = t.items.find(x => x.id === iid); if (it) it.buy = false;
+    }));
+    state.shopping = [];
+    save(); render(); toast("Carrello svuotato");
+  }
+
+  /* --- excel --- */
+  if (a === "xlsx-export") await esportaXlsx();
+  if (a === "xlsx-pick") $("#xlsxFile").click();
+  if (a === "xlsx-check") await controllaFile();
+  if (a === "xlsx-apply") await applicaImport();
+
+  /* --- backup --- */
+  if (a === "export") await doBackup();
+  if (a === "backup-later"){ state.backup.snooze = Date.now() + 3*DAY; save(); renderBanner(); }
+  if (a === "import") $("#importFile").click();
+});
+
+$("#xlsxFile").addEventListener("change", async e => {
+  const f = e.target.files[0]; if (!f) return;
+  $("#xlsxPanel").classList.remove("hidden");
+  $("#xlsxName").textContent = f.name;
+  $('[data-action="xlsx-apply"]').classList.add("hidden");
+  xlsxFogli = null; xlsxEsito = null; xlsxSpesa = null;
+  try {
+    if (/\.csv$/i.test(f.name)) xlsxFogli = { Dati: readCsvRows(await f.text()) };
+    else xlsxFogli = await readXlsxSheets(await f.arrayBuffer());
+    const nomi = Object.keys(xlsxFogli);
+    const righe = nomi.reduce((a,k) => a + xlsxFogli[k].length, 0);
+    mostraReport("<strong>File letto: "+righe+" righe in "+nomi.length+" fogli ("+esc(nomi.join(", "))+").</strong>Premi Prova per controllarlo prima di importare.", false);
+    $("#xlsxReport").className = "report";
+  } catch(err){
+    mostraReport("<strong>Non riesco ad aprire il file.</strong>"+esc(err.message || "Formato non riconosciuto."), false);
+  }
+  e.target.value = "";
+});
+
+$("#importFile").addEventListener("change", e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!d.lists) throw new Error("bad");
+      state = Object.assign(seed(), d);
+      migra();
+      state.ui.tripId = null;
+      save(); render(); toast("Backup importato");
+    } catch(err){ toast("File non valido"); }
+  };
+  r.readAsText(f); e.target.value = "";
+});
+
+$("#searchList").addEventListener("input", e => { qList = e.target.value; renderListItems(); });
+$("#searchTrip").addEventListener("input", e => { qTrip = e.target.value; renderTrip(); });
+
+$("#listSelect").addEventListener("change", e => {
+  state.ui.listId = e.target.value; qList = ""; $("#searchList").value = ""; save(); renderListItems();
+});
+[["itemQty","itemCustom"],["shopQty","shopCustom"],["tripAddQty","tripAddCustom"],["catalogQty","catalogCustom"]].forEach(([s,c]) => {
+  $("#"+s).addEventListener("change", () => $("#"+c).classList.toggle("hidden", $("#"+s).value !== "custom"));
+});
+document.addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  const map = { itemName:"item-add", newListName:"list-create", newCatName:"cat-create",
+                tripName:"trip-create", shopName:"shop-add", tripAddName:"trip-add-item",
+                newCatalogName:"catalog-create", catalogItemName:"catalog-item-add" };
+  const act = map[e.target.id];
+  if (act) $('[data-action="'+act+'"]').click();
+});
+
+/* ============ XLSX: scrittura e lettura senza librerie ============ */
+
+const CRC_T = (() => {
+  const t = new Uint32Array(256);
+  for (let i=0;i<256;i++){
+    let c = i;
+    for (let k=0;k<8;k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[i] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(u8){
+  let c = 0xFFFFFFFF;
+  for (let i=0;i<u8.length;i++) c = CRC_T[(c ^ u8[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+function zipWrite(files){
+  const enc = new TextEncoder();
+  const parts = [], central = [];
+  let offset = 0;
+  files.forEach(f => {
+    const data = enc.encode(f.str);
+    const nameB = enc.encode(f.name);
+    const crc = crc32(data);
+    const lh = new Uint8Array(30 + nameB.length);
+    const dv = new DataView(lh.buffer);
+    dv.setUint32(0, 0x04034b50, true);
+    dv.setUint16(4, 20, true);
+    dv.setUint32(14, crc, true);
+    dv.setUint32(18, data.length, true);
+    dv.setUint32(22, data.length, true);
+    dv.setUint16(26, nameB.length, true);
+    lh.set(nameB, 30);
+    parts.push(lh, data);
+
+    const cd = new Uint8Array(46 + nameB.length);
+    const cv = new DataView(cd.buffer);
+    cv.setUint32(0, 0x02014b50, true);
+    cv.setUint16(4, 20, true);
+    cv.setUint16(6, 20, true);
+    cv.setUint32(16, crc, true);
+    cv.setUint32(20, data.length, true);
+    cv.setUint32(24, data.length, true);
+    cv.setUint16(28, nameB.length, true);
+    cv.setUint32(42, offset, true);
+    cd.set(nameB, 46);
+    central.push(cd);
+    offset += lh.length + data.length;
+  });
+  const cdSize = central.reduce((a,b) => a + b.length, 0);
+  const eocd = new Uint8Array(22);
+  const ev = new DataView(eocd.buffer);
+  ev.setUint32(0, 0x06054b50, true);
+  ev.setUint16(8, files.length, true);
+  ev.setUint16(10, files.length, true);
+  ev.setUint32(12, cdSize, true);
+  ev.setUint32(16, offset, true);
+  return new Blob([...parts, ...central, eocd], { type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+}
+
+async function zipRead(buf){
+  const u8 = new Uint8Array(buf);
+  const dv = new DataView(buf);
+  let eocd = -1;
+  for (let i = u8.length - 22; i >= 0 && i > u8.length - 66000; i--){
+    if (dv.getUint32(i, true) === 0x06054b50){ eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error("Non sembra un file Excel.");
+  const n = dv.getUint16(eocd+10, true);
+  let off = dv.getUint32(eocd+16, true);
+  const dec = new TextDecoder();
+  const out = {};
+  for (let k=0;k<n;k++){
+    if (dv.getUint32(off, true) !== 0x02014b50) throw new Error("File Excel danneggiato.");
+    const method = dv.getUint16(off+10, true);
+    const csize = dv.getUint32(off+20, true);
+    const nameLen = dv.getUint16(off+28, true);
+    const extraLen = dv.getUint16(off+30, true);
+    const commentLen = dv.getUint16(off+32, true);
+    const lho = dv.getUint32(off+42, true);
+    const name = dec.decode(u8.subarray(off+46, off+46+nameLen));
+    const lnameLen = dv.getUint16(lho+26, true);
+    const lextraLen = dv.getUint16(lho+28, true);
+    const start = lho + 30 + lnameLen + lextraLen;
+    out[name] = { method, data: u8.subarray(start, start + csize) };
+    off += 46 + nameLen + extraLen + commentLen;
+  }
+  return out;
+}
+
+async function entryText(e){
+  if (!e) return null;
+  if (e.method === 0) return new TextDecoder().decode(e.data);
+  if (typeof DecompressionStream === "undefined") throw new Error("Questo telefono non sa aprire i file Excel compressi. Usa il backup .json.");
+  const stream = new Blob([e.data]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+  return await new Response(stream).text();
+}
+
+const xmlEsc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[c]));
+const colName = i => { let s=""; i++; while(i>0){ const r=(i-1)%26; s=String.fromCharCode(65+r)+s; i=Math.floor((i-1)/26);} return s; };
+
+function sheetXml(rows, widths){
+  const cols = widths ? '<cols>' + widths.map((w,i) => '<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>').join("") + '</cols>' : '';
+  const body = rows.map((row, r) =>
+    '<row r="'+(r+1)+'">' + row.map((v, c) => {
+      const ref = colName(c) + (r+1);
+      if (v === null || v === undefined || v === "") return '';
+      if (typeof v === "number") return '<c r="'+ref+'"><v>'+v+'</v></c>';
+      return '<c r="'+ref+'" t="inlineStr"><is><t xml:space="preserve">'+xmlEsc(v)+'</t></is></c>';
+    }).join("") + '</row>'
+  ).join("");
+  return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+    cols + '<sheetData>' + body + '</sheetData></worksheet>';
+}
+
+function buildXlsx(sheets){
+  const files = [
+    { name:"[Content_Types].xml", str:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+      '<Default Extension="xml" ContentType="application/xml"/>' +
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+      sheets.map((s,i) => '<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>').join("") +
+      '</Types>' },
+    { name:"_rels/.rels", str:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' +
+      '</Relationships>' },
+    { name:"xl/workbook.xml", str:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+      '<sheets>' + sheets.map((s,i) => '<sheet name="'+xmlEsc(s.name)+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>').join("") + '</sheets></workbook>' },
+    { name:"xl/_rels/workbook.xml.rels", str:'<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+      '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      sheets.map((s,i) => '<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>').join("") +
+      '</Relationships>' }
+  ];
+  sheets.forEach((s,i) => files.push({ name:"xl/worksheets/sheet"+(i+1)+".xml", str: sheetXml(s.rows, s.widths) }));
+  return zipWrite(files);
+}
+
+function parseSheet(txt, shared){
+  const doc = new DOMParser().parseFromString(txt, "application/xml");
+  const rows = [];
+  [...doc.getElementsByTagName("row")].forEach(r => {
+    const arr = [];
+    [...r.getElementsByTagName("c")].forEach(c => {
+      const ref = c.getAttribute("r") || "";
+      const letters = ref.replace(/[0-9]/g, "");
+      let idx = 0;
+      for (let i=0;i<letters.length;i++) idx = idx*26 + (letters.charCodeAt(i) - 64);
+      idx = Math.max(0, idx - 1);
+      const t = c.getAttribute("t");
+      let v = "";
+      if (t === "inlineStr"){ v = [...c.getElementsByTagName("t")].map(x => x.textContent).join(""); }
+      else {
+        const vEl = c.getElementsByTagName("v")[0];
+        const raw = vEl ? vEl.textContent : "";
+        v = (t === "s") ? (shared[parseInt(raw,10)] ?? "") : raw;
+      }
+      arr[idx] = String(v).trim();
+    });
+    rows.push(arr);
+  });
+  return rows;
+}
+
+async function readXlsxSheets(buf){
+  const zip = await zipRead(buf);
+  const shared = [];
+  const ssTxt = await entryText(zip["xl/sharedStrings.xml"]);
+  if (ssTxt){
+    const doc = new DOMParser().parseFromString(ssTxt, "application/xml");
+    [...doc.getElementsByTagName("si")].forEach(si => {
+      shared.push([...si.getElementsByTagName("t")].map(t => t.textContent).join(""));
+    });
+  }
+  const rels = {};
+  const relsTxt = await entryText(zip["xl/_rels/workbook.xml.rels"]);
+  if (relsTxt){
+    const d = new DOMParser().parseFromString(relsTxt, "application/xml");
+    [...d.getElementsByTagName("Relationship")].forEach(r => { rels[r.getAttribute("Id")] = r.getAttribute("Target"); });
+  }
+  const out = {};
+  const wbTxt = await entryText(zip["xl/workbook.xml"]);
+  if (wbTxt){
+    const d = new DOMParser().parseFromString(wbTxt, "application/xml");
+    const sheets = [...d.getElementsByTagName("sheet")];
+    for (let i=0;i<sheets.length;i++){
+      const nome = sheets[i].getAttribute("name") || ("Foglio"+(i+1));
+      const rid = sheets[i].getAttribute("r:id");
+      let target = (rid && rels[rid]) || ("worksheets/sheet"+(i+1)+".xml");
+      target = String(target).replace(/^\//,"").replace(/^xl\//,"");
+      const entry = zip["xl/"+target];
+      out[nome] = entry ? parseSheet(await entryText(entry), shared) : [];
+    }
+  }
+  if (!Object.keys(out).length){
+    const k = Object.keys(zip).find(x => /^xl\/worksheets\/.*\.xml$/.test(x));
+    if (!k) throw new Error("Nel file non trovo nessun foglio.");
+    out["Dati"] = parseSheet(await entryText(zip[k]), shared);
+  }
+  return out;
+}
+
+function readCsvRows(text){
+  const rows = [];
+  const sep = (text.split("\n")[0].match(/;/g) || []).length > (text.split("\n")[0].match(/,/g) || []).length ? ";" : ",";
+  let row = [], cell = "", q = false;
+  for (let i=0;i<text.length;i++){
+    const ch = text[i];
+    if (q){
+      if (ch === '"'){ if (text[i+1] === '"'){ cell += '"'; i++; } else q = false; }
+      else cell += ch;
+    } else if (ch === '"') q = true;
+    else if (ch === sep){ row.push(cell.trim()); cell = ""; }
+    else if (ch === "\n"){ row.push(cell.trim()); rows.push(row); row = []; cell = ""; }
+    else if (ch !== "\r") cell += ch;
+  }
+  if (cell || row.length){ row.push(cell.trim()); rows.push(row); }
+  return rows.filter(r => r.some(c => c !== ""));
+}
+
+/* Trasforma le righe del foglio in liste + categorie di base, con controllo errori. */
+const HEAD = ["TIPO","ID LISTA","LISTA","ID CATEGORIA","CATEGORIA","ID OGGETTO","OGGETTO","QUANTITA"];
+const pul = s => String(s == null ? "" : s).trim();
+const nrm = s => pul(s).toLowerCase();
+const okId = s => /^[a-z0-9]{3,16}$/i.test(s);
+
+function analizza(rows){
+  const err = [];
+  const push = (riga, msg) => { if (err.length < 40) err.push((riga ? "Riga "+riga+": " : "") + msg); };
+  if (!rows.length) return { err:["Il foglio è vuoto."] };
+
+  const head = rows[0].map(h => pul(h).toUpperCase().replace(/À/g,"A"));
+  HEAD.forEach((h,i) => { if (head[i] !== h) push(1, 'la colonna '+(i+1)+' deve chiamarsi "'+h+'", trovato "'+(head[i]||"(vuota)")+'".'); });
+  if (err.length) return { err };
+
+  const liste = new Map();   // idLista -> {id,name,cats:Map,items:[]}
+  const base = new Map();    // idCat  -> {id,name,items:[]}
+  const nomiLista = new Map();
+  const nomiBase = new Map();
+  const idVisti = new Map();
+  const idOggetti = new Set();
+  const propCat = new Map();
+
+  const regId = (id, tipo, riga) => {
+    if (!id) return true;
+    if (!okId(id)){ push(riga, 'ID "'+id+'" non valido: solo lettere e numeri, da 3 a 16 caratteri.'); return false; }
+    const key = tipo+":"+id.toLowerCase();
+    const altro = [...idVisti.entries()].find(([k]) => k.endsWith(":"+id.toLowerCase()) && k !== key);
+    if (altro){ push(riga, 'lo stesso ID "'+id+'" è usato per cose di tipo diverso.'); return false; }
+    idVisti.set(key, true);
+    return true;
+  };
+
+  for (let r=1; r<rows.length; r++){
+    const row = rows[r] || [];
+    if (!row.some(c => pul(c) !== "")) continue;
+    const riga = r+1;
+    const tipo = pul(row[0]).toUpperCase();
+    const idL = pul(row[1]), nomeL = pul(row[2]);
+    const idC = pul(row[3]), nomeC = pul(row[4]);
+    const idO = pul(row[5]), nomeO = pul(row[6]);
+    const qRaw = pul(row[7]);
+
+    if (tipo !== "LISTA" && tipo !== "BASE"){ push(riga, 'TIPO deve essere LISTA o BASE, trovato "'+(tipo||"(vuoto)")+'".'); continue; }
+    if (!regId(idL,"lista",riga) || !regId(idC,"cat",riga) || !regId(idO,"item",riga)) continue;
+    if (idO){
+      if (idOggetti.has(idO.toLowerCase())){ push(riga, 'ID oggetto "'+idO+'" usato più di una volta: ogni oggetto deve avere il suo.'); continue; }
+      idOggetti.add(idO.toLowerCase());
+    }
+    if (idC){
+      const prop = tipo === "BASE" ? "BASE" : (idL || "n:"+nrm(nomeL));
+      const gia = propCat.get(idC.toLowerCase());
+      if (gia && gia !== prop){ push(riga, 'la categoria con ID "'+idC+'" compare in due posti diversi.'); continue; }
+      propCat.set(idC.toLowerCase(), prop);
+    }
+
+    let qty = 1;
+    if (nomeO){
+      if (qRaw === "") qty = 1;
+      else {
+        const nq = Number(qRaw.replace(",","."));
+        if (!Number.isFinite(nq) || !Number.isInteger(nq)){ push(riga, 'quantità "'+qRaw+'" non è un numero intero.'); continue; }
+        if (nq < 1 || nq > 99){ push(riga, 'quantità '+nq+' fuori intervallo: ammesso da 1 a 99.'); continue; }
+        qty = nq;
+      }
+    }
+
+    if (tipo === "BASE"){
+      if (!nomeC){ push(riga, "riga BASE senza nome categoria."); continue; }
+      if (nomeL || idL){ push(riga, "riga BASE: le colonne LISTA devono restare vuote."); continue; }
+      const key = idC || "n:"+nrm(nomeC);
+      let c = base.get(key);
+      if (!c){
+        const gia = nomiBase.get(nrm(nomeC));
+        if (gia && gia !== key){ push(riga, 'esistono due categorie di base con lo stesso nome "'+nomeC+'".'); continue; }
+        nomiBase.set(nrm(nomeC), key);
+        c = { id: idC || uid(), name: nomeC, items: [], nomi: new Set() };
+        base.set(key, c);
+      } else if (nrm(c.name) !== nrm(nomeC)){ push(riga, 'lo stesso ID categoria ha due nomi diversi: "'+c.name+'" e "'+nomeC+'".'); continue; }
+      if (nomeO){
+        if (c.nomi.has(nrm(nomeO))){ push(riga, '"'+nomeO+'" è ripetuto nella categoria di base "'+nomeC+'".'); continue; }
+        c.nomi.add(nrm(nomeO));
+        c.items.push({ id: idO || uid(), name: nomeO, qty });
+      }
+      continue;
+    }
+
+    // LISTA
+    if (!nomeL){ push(riga, "riga LISTA senza nome della lista."); continue; }
+    const keyL = idL || "n:"+nrm(nomeL);
+    let L = liste.get(keyL);
+    if (!L){
+      const gia = nomiLista.get(nrm(nomeL));
+      if (gia && gia !== keyL){ push(riga, 'esistono due liste con lo stesso nome "'+nomeL+'".'); continue; }
+      nomiLista.set(nrm(nomeL), keyL);
+      L = { id: idL || uid(), name: nomeL, cats:new Map(), nomiCat:new Map(), items:[], nomiItem:new Set() };
+      liste.set(keyL, L);
+    } else if (nrm(L.name) !== nrm(nomeL)){ push(riga, 'lo stesso ID lista ha due nomi diversi: "'+L.name+'" e "'+nomeL+'".'); continue; }
+
+    let catId = null;
+    if (nomeC || idC){
+      if (!nomeC){ push(riga, "c'è un ID categoria ma manca il nome della categoria."); continue; }
+      const keyC = idC || "n:"+nrm(nomeC);
+      let C = L.cats.get(keyC);
+      if (!C){
+        const gia = L.nomiCat.get(nrm(nomeC));
+        if (gia && gia !== keyC){ push(riga, 'nella lista "'+nomeL+'" ci sono due categorie con lo stesso nome "'+nomeC+'".'); continue; }
+        L.nomiCat.set(nrm(nomeC), keyC);
+        C = { id: idC || uid(), name: nomeC };
+        L.cats.set(keyC, C);
+      } else if (nrm(C.name) !== nrm(nomeC)){ push(riga, 'lo stesso ID categoria ha due nomi diversi: "'+C.name+'" e "'+nomeC+'".'); continue; }
+      catId = C.id;
+    }
+
+    if (nomeO){
+      const dupKey = (catId||"-")+"|"+nrm(nomeO);
+      if (L.nomiItem.has(dupKey)){ push(riga, '"'+nomeO+'" è ripetuto nella stessa categoria della lista "'+nomeL+'".'); continue; }
+      L.nomiItem.add(dupKey);
+      L.items.push({ id: idO || uid(), name: nomeO, qty, catId });
+    }
+  }
+
+  if (err.length) return { err };
+
+  const outListe = [...liste.values()].map(L => ({
+    id:L.id, name:L.name, closed:{},
+    cats:[...L.cats.values()].map(c => ({ id:c.id, name:c.name })),
+    items:L.items
+  }));
+  const outBase = [...base.values()].map(c => ({ id:c.id, name:c.name, items:c.items }));
+  return {
+    err: [],
+    liste: outListe,
+    base: outBase,
+    conta: {
+      liste: outListe.length,
+      cats: outListe.reduce((a,l)=>a+l.cats.length,0) + outBase.length,
+      items: outListe.reduce((a,l)=>a+l.items.length,0) + outBase.reduce((a,c)=>a+c.items.length,0)
+    }
+  };
+}
+
+
+function analizzaSpesa(rows){
+  const err = [], voci = [], nomi = new Set(), ids = new Set();
+  if (!rows || !rows.length) return { err, voci, presente:false };
+  const head = rows[0].map(h => pul(h).toUpperCase().replace(/À/g,"A"));
+  const attesa = ["ID","OGGETTO","QUANTITA"];
+  attesa.forEach((h,i) => { if (head[i] !== h) err.push('Spesa riga 1: la colonna '+(i+1)+' deve chiamarsi "'+h+'", trovato "'+(head[i]||"(vuota)")+'".'); });
+  if (err.length) return { err, voci, presente:true };
+  for (let r=1; r<rows.length; r++){
+    const row = rows[r] || [];
+    if (!row.some(c => pul(c) !== "")) continue;
+    const riga = r+1;
+    const id = pul(row[0]), nome = pul(row[1]), qRaw = pul(row[2]);
+    if (!nome){ err.push("Spesa riga "+riga+": manca il nome della cosa da comprare."); continue; }
+    if (id){
+      if (!okId(id)){ err.push('Spesa riga '+riga+': ID "'+id+'" non valido.'); continue; }
+      if (ids.has(id.toLowerCase())){ err.push('Spesa riga '+riga+': ID "'+id+'" ripetuto.'); continue; }
+      ids.add(id.toLowerCase());
+    }
+    if (nomi.has(nrm(nome))){ err.push('Spesa riga '+riga+': "'+nome+'" è già in lista, mettilo una volta sola con la quantità giusta.'); continue; }
+    nomi.add(nrm(nome));
+    let qty = 1;
+    if (qRaw !== ""){
+      const nq = Number(qRaw.replace(",","."));
+      if (!Number.isFinite(nq) || !Number.isInteger(nq)){ err.push('Spesa riga '+riga+': quantità "'+qRaw+'" non è un numero intero.'); continue; }
+      if (nq < 1 || nq > 99){ err.push("Spesa riga "+riga+": quantità "+nq+" fuori intervallo, ammesso da 1 a 99."); continue; }
+      qty = nq;
+    }
+    voci.push({ id, name:nome, qty });
+  }
+  return { err, voci, presente:true };
+}
+
+/* ---------------- Excel: esporta, controlla, importa ---------------- */
+const XCOL = ["TIPO","ID LISTA","LISTA","ID CATEGORIA","CATEGORIA","ID OGGETTO","OGGETTO","QUANTITA"];
+let xlsxFogli = null, xlsxEsito = null, xlsxSpesa = null;
+
+function righeDaStato(){
+  const rows = [XCOL.slice()];
+  state.lists.forEach(l => {
+    const gruppi = groupsOf(l.cats, l.items, true);
+    if (!gruppi.length){ rows.push(["LISTA", l.id, l.name, "", "", "", "", ""]); return; }
+    gruppi.forEach(g => {
+      const cid = g.real ? g.id : "";
+      const cnome = g.real ? g.name : "";
+      if (!g.items.length){ rows.push(["LISTA", l.id, l.name, cid, cnome, "", "", ""]); return; }
+      g.items.forEach(i => rows.push(["LISTA", l.id, l.name, cid, cnome, i.id, i.name, i.qty]));
+    });
+  });
+  state.catalog.forEach(c => {
+    if (!c.items.length){ rows.push(["BASE", "", "", c.id, c.name, "", "", ""]); return; }
+    c.items.forEach(i => rows.push(["BASE", "", "", c.id, c.name, i.id, i.name, i.qty]));
+  });
+  return rows;
+}
+
+const LEGENDA = [
+  ["COME SI USA QUESTO FOGLIO"],
+  [""],
+  ["Il foglio Dati contiene una riga per ogni oggetto. Puoi cambiare i valori, aggiungere righe,"],
+  ["cancellarne altre, e poi reimportare il file dalle Impostazioni dell'app."],
+  ["Quando importi, liste e categorie di base diventano ESATTAMENTE quello che c'è nel foglio:"],
+  ["le righe che togli spariscono anche dall'app. Viaggi e spesa non vengono toccati."],
+  [""],
+  ["LE COLONNE"],
+  ["TIPO — LISTA per le tue liste, BASE per le categorie di base. Nient'altro è ammesso."],
+  ["ID LISTA — codice automatico. Non toccarlo: serve all'app per riconoscere la lista"],
+  ["            e aggiornarla invece di crearne una nuova. Riga nuova senza ID = cosa nuova."],
+  ["LISTA — nome della lista. Vuoto sulle righe BASE."],
+  ["ID CATEGORIA — codice automatico della categoria. Vale la stessa regola dell'ID lista."],
+  ["CATEGORIA — nome della categoria. Se lo lasci vuoto in una riga LISTA, l'oggetto finisce"],
+  ["            in Senza categoria. Nelle righe BASE è obbligatorio."],
+  ["ID OGGETTO — codice automatico dell'oggetto. Non toccarlo, lascialo vuoto se la riga è nuova."],
+  ["OGGETTO — nome della cosa da portare. Vuoto = riga che serve solo a tenere in vita una"],
+  ["            lista o una categoria ancora senza oggetti."],
+  ["QUANTITA — numero intero da 1 a 99. Vuoto vale 1."],
+  [""],
+  ["LE REGOLE CHE L'APP CONTROLLA"],
+  ["1. La prima riga deve avere le otto intestazioni esatte, nello stesso ordine."],
+  ["2. TIPO puo' essere solo LISTA o BASE."],
+  ["3. Quantita': numero intero fra 1 e 99."],
+  ["4. Due liste non possono avere lo stesso nome."],
+  ["5. Due categorie di base non possono avere lo stesso nome."],
+  ["6. Dentro la stessa lista, due categorie non possono avere lo stesso nome."],
+  ["7. Dentro la stessa categoria della stessa lista, due oggetti non possono avere lo stesso nome."],
+  ["   (lo stesso nome in categorie diverse, o in liste diverse, va benissimo)"],
+  ["8. Gli ID sono lettere e numeri, da 3 a 16 caratteri, e ognuno appartiene a una cosa sola."],
+  ["9. Nelle righe BASE le colonne ID LISTA e LISTA devono restare vuote."],
+  [""],
+  [""],
+  ["IL FOGLIO SPESA"],
+  ["Tre colonne: ID, OGGETTO, QUANTITA. Serve per riempire il carrello in blocco."],
+  ["Anche qui l'ID e' automatico: lascialo vuoto sulle righe nuove, non toccarlo su quelle esistenti."],
+  ["Lo stesso nome non puo' comparire due volte: mettilo una volta sola con la quantita' giusta."],
+  ["Se il file non ha il foglio Spesa, il carrello resta com'e'."],
+  [""],
+  ["Il pulsante Prova controlla tutto e ti dice riga per riga cosa non va, senza importare niente."],
+  ["Solo quando il controllo passa compare il pulsante Importa."]
+];
+
+function righeSpesa(){
+  const rows = [["ID","OGGETTO","QUANTITA"]];
+  state.shopping.forEach(s => rows.push([s.id, s.name, s.qty]));
+  return rows;
+}
+
+async function esportaXlsx(){
+  const blob = buildXlsx([
+    { name:"Dati", rows: righeDaStato(), widths:[9,13,24,14,20,14,30,11] },
+    { name:"Spesa", rows: righeSpesa(), widths:[14,32,11] },
+    { name:"Legenda", rows: LEGENDA, widths:[100] }
+  ]);
+  const nome = "azze-list-" + today() + ".xlsx";
+  try {
+    const file = new File([blob], nome, { type: blob.type });
+    if (navigator.canShare && navigator.canShare({ files:[file] })){
+      await navigator.share({ files:[file], title:nome });
+      toast("Foglio esportato"); return;
+    }
+  } catch(err){ if (err && err.name === "AbortError") return; }
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url; link.download = nome; link.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 3000);
+  toast("Foglio esportato");
+}
+
+function mostraReport(html, ok){
+  const box = $("#xlsxReport");
+  box.className = "report " + (ok ? "ok" : "ko");
+  box.innerHTML = html;
+  $('[data-action="xlsx-apply"]').classList.toggle("hidden", !ok);
+}
+
+function foglio(nome){
+  if (!xlsxFogli) return null;
+  const k = Object.keys(xlsxFogli).find(x => norm(x) === nome);
+  return k ? xlsxFogli[k] : null;
+}
+
+async function controllaFile(){
+  if (!xlsxFogli){ mostraReport("<strong>Prima scegli un file.</strong>", false); return; }
+  const dati = foglio("dati") || xlsxFogli[Object.keys(xlsxFogli)[0]];
+  xlsxEsito = analizza(dati);
+  xlsxSpesa = analizzaSpesa(foglio("spesa"));
+  const errori = xlsxEsito.err.map(e => "Dati - " + e).concat(xlsxSpesa.err);
+  if (errori.length){
+    const primi = errori.slice(0, 12).map(e => "<li>"+esc(e)+"</li>").join("");
+    const altri = errori.length > 12 ? "<p class='more'>e altri "+(errori.length-12)+" problemi.</p>" : "";
+    mostraReport("<strong>Ho trovato "+errori.length+" problemi, non importo niente.</strong><ul>"+primi+"</ul>"+altri+"<p class='more'>Correggi il foglio e riprova a importare.</p>", false);
+    return;
+  }
+  const c = xlsxEsito.conta;
+  const spesa = xlsxSpesa.presente
+    ? " Nel foglio Spesa ci sono " + xlsxSpesa.voci.length + " cose da comprare, che sostituiranno il carrello."
+    : " Il foglio Spesa non c'e', quindi il carrello resta com'e'.";
+  mostraReport("<strong>Controllo superato.</strong>Nel foglio Dati ci sono "+c.liste+" liste, "+c.cats+" categorie e "+c.items+" oggetti." + spesa + " Premi Importa per sostituire quello che hai adesso.", true);
+}
+
+async function applicaImport(){
+  if (!xlsxEsito || xlsxEsito.err.length) return;
+  const ok = await dialog({
+    title:"Confermi l'importazione?",
+    text:"Liste e categorie di base diventano quelle del foglio. Viaggi e spesa restano come sono. Se qualcosa va storto puoi tornare indietro con un backup .json.",
+    ok:"Importa"
+  });
+  if (!ok) return;
+  const vecchie = new Map(state.lists.map(l => [l.id, l.closed || {}]));
+  state.lists = xlsxEsito.liste.map(l => Object.assign(l, { closed: vecchie.get(l.id) || {} }));
+  state.catalog = xlsxEsito.base;
+
+  if (xlsxSpesa && xlsxSpesa.presente){
+    const prima = new Map(state.shopping.map(s => [s.id, s]));
+    const nuova = xlsxSpesa.voci.map(v => {
+      const old = v.id && prima.get(v.id);
+      return { id: v.id || uid(), name: v.name, qty: v.qty,
+               origins: old ? old.origins : [], manual: old ? old.manual : true };
+    });
+    const restano = new Set(nuova.map(s => s.id));
+    state.shopping.filter(s => !restano.has(s.id)).forEach(s => s.origins.forEach(o => {
+      const [tid, iid] = o.split("/");
+      const t = state.trips.find(x => x.id === tid); if (!t) return;
+      const it = t.items.find(x => x.id === iid); if (it) it.buy = false;
+    }));
+    state.shopping = nuova;
+  }
+  if (!state.lists.some(l => l.id === state.ui.listId)) state.ui.listId = state.lists.length ? state.lists[0].id : null;
+  save(); render();
+  const c = xlsxEsito.conta;
+  const inSpesa = (xlsxSpesa && xlsxSpesa.presente) ? " In carrello "+xlsxSpesa.voci.length+" cose da comprare." : "";
+  mostraReport("<strong>Importazione avvenuta con successo.</strong>Caricate "+c.liste+" liste, "+c.cats+" categorie e "+c.items+" oggetti." + inSpesa, true);
+  $('[data-action="xlsx-apply"]').classList.add("hidden");
+  xlsxFogli = null; xlsxEsito = null; xlsxSpesa = null;
+  toast("Importazione riuscita");
+}
+
+/* ---------------- avvio ---------------- */
+function migra(){
+  state.backup = Object.assign({ date:null, n:0, lastAt:0, lastName:null, snooze:0 }, state.backup || {});
+  state.ui = Object.assign({ tab:"viaggi", listId:null, tripId:null, catClosed:{} }, state.ui || {});
+  state.ui.catClosed = state.ui.catClosed || {};
+  state.catalog = state.catalog || [];
+  state.catalog.forEach(c => { c.items = c.items || []; });
+  state.lists.forEach(l => { l.cats = l.cats || []; l.closed = l.closed || {}; l.items.forEach(i => { if (!("catId" in i)) i.catId = null; }); });
+  state.trips.forEach(t => { t.cats = t.cats || []; t.closed = t.closed || {}; t.filter = t.filter || "all"; t.items.forEach(i => { if (!("catId" in i)) i.catId = null; }); });
+  state.shopping.forEach(s => { s.origins = s.origins || []; });
+}
+
+(async function init(){
+  try {
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(()=>{});
+  } catch(e){}
+  ["itemQty","shopQty","tripAddQty","catalogQty"].forEach(i => fillQtySelect($("#"+i)));
+  const saved = await store.load();
+  state = (saved && saved.lists) ? Object.assign(seed(), saved) : seed();
+  migra();
+  render();
+})();
+
+})();
+</script>
+</body>
+</html>
