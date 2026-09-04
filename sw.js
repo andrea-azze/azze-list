@@ -2,7 +2,7 @@
    Tiene i file dell'app nella cache del telefono, così parte anche senza rete.
    I dati delle liste NON passano da qui: restano in localStorage. */
 
-const CACHE = "azze-list-v14";
+const CACHE = "azze-list-v15";
 const FILES = [
   "./",
   "./index.html",

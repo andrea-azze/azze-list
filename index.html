@@ -17,6 +17,9 @@
     --text:#EAF2F1; --muted:#8CA3A6; --accent:#F5C443; --accent-ink:#1A1204;
     --ok:#3DDC84; --no:#FF6B6B; --buy:#6BB8FF;
     --radius:14px; --pad:16px;
+    --cat:#B4632E; --cat-2:#8C4A20;      /* categorie: arancione */
+    --list:#2C6E92; --list-2:#1E5170;    /* liste: azzurro */
+    --trip:#6353A8; --trip-2:#4B3E86;    /* viaggi: viola */
   }
   *{box-sizing:border-box}
   html,body{margin:0;padding:0}
@@ -63,6 +66,10 @@
   select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
     background-position:calc(100% - 17px) 50%,calc(100% - 12px) 50%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
   input:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  #listSelect{background-color:var(--list);border-color:var(--list-2);color:#fff;font-weight:600;
+    background-image:linear-gradient(45deg,transparent 50%,#fff 50%),linear-gradient(135deg,#fff 50%,transparent 50%)}
+  select.pick-list{background-color:rgba(44,110,146,.22);border-color:rgba(44,110,146,.70)}
+  select.pick-cat{background-color:rgba(180,99,46,.22);border-color:rgba(180,99,46,.75)}
   input::placeholder{color:#5F7A7E}
 
   .btn{background:var(--surface-2);border:1px solid var(--line-strong);border-radius:10px;padding:11px 14px;font-weight:600;cursor:pointer;white-space:nowrap}
@@ -80,16 +87,22 @@
   .ghead{
     position:sticky;top:0;z-index:3;
     display:flex;align-items:center;gap:9px;padding:13px 10px 13px 12px;cursor:pointer;user-select:none;
-    background:#081619;border-radius:13px 13px 0 0;
-    border-bottom:1px solid var(--line-strong);box-shadow:0 6px 14px -10px rgba(0,0,0,.9);
+    background:var(--cat);border-radius:13px 13px 0 0;
+    border-bottom:1px solid var(--cat-2);box-shadow:0 6px 14px -10px rgba(0,0,0,.9);
   }
+  .ghead .gname{color:#FFF6EE}
+  .ghead .gcount{color:rgba(255,255,255,.78)}
+  .ghead .icon-btn{color:rgba(255,255,255,.85)}
+  .ghead .icon-btn:active{background:rgba(0,0,0,.20)}
+  .ghead .act{border-color:rgba(255,255,255,.45);color:rgba(255,255,255,.92)}
+  .group.empty-cat .ghead{background:rgba(180,99,46,.55)}
   .group.closed .ghead{border-radius:13px;border-bottom:0}
-  .ghead .chev{color:var(--accent);transition:transform .18s ease;flex:none}
+  .ghead .chev{color:rgba(255,255,255,.9);transition:transform .18s ease;flex:none}
   .ghead.open .chev{transform:rotate(90deg)}
   .gname{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
     font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
   .gcount{color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums;flex:none}
-  .gbar{height:4px;background:var(--surface-2);margin:0 12px 10px}
+  .gbar{height:4px;background:var(--surface-2);margin:10px 12px 10px}
   .gbar span{display:block;height:100%;background:var(--ok);border-radius:99px;transition:width .25s ease}
   .gbody{padding:2px 12px 4px}
   .group.empty-cat .gname{color:var(--muted)}
@@ -114,9 +127,10 @@
   .act.no.on{background:var(--no);border-color:var(--no);color:#2B0606}
   .act.buy.on{background:var(--buy);border-color:var(--buy);color:#04203B}
 
-  .trip{display:block;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:10px;cursor:pointer}
-  .trip h3{margin:0;font-size:17px;letter-spacing:-.02em;font-weight:600}
-  .trip .meta{color:var(--muted);font-size:13px;margin-top:3px}
+  .trip{display:block;width:100%;text-align:left;background:var(--trip);border:1px solid var(--trip-2);border-radius:var(--radius);padding:14px;margin-bottom:10px;cursor:pointer}
+  .trip h3{margin:0;font-size:17px;letter-spacing:-.02em;font-weight:600;color:#FFFFFF}
+  .trip .meta{color:rgba(255,255,255,.80);font-size:13px;margin-top:3px}
+  .trip .bar{background:rgba(0,0,0,.30)}
   .bar{height:6px;border-radius:99px;background:var(--surface-2);margin-top:11px;overflow:hidden}
   .bar span{display:block;height:100%;background:var(--ok);border-radius:99px;transition:width .25s ease}
   .trip.done .bar span{background:var(--accent)}
@@ -205,7 +219,7 @@
           <input type="text" id="tripName" class="grow" placeholder="Nome (es. 3 giorni dalla fidanzata)">
         </div>
         <div class="row">
-          <select id="tripBase" class="grow"></select>
+          <select id="tripBase" class="grow pick-list"></select>
           <button class="btn btn-primary" data-action="trip-create">Crea</button>
         </div>
       </div>
@@ -246,7 +260,7 @@
           <input type="text" id="tripAddName" class="grow" placeholder="Aggiungi solo a questo viaggio">
         </div>
         <div class="row" style="margin-bottom:8px">
-          <select id="tripAddCat" class="grow"></select>
+          <select id="tripAddCat" class="grow pick-cat"></select>
         </div>
         <div class="row">
           <select id="tripAddQty" class="grow"></select>
@@ -278,7 +292,7 @@
         <button class="btn btn-sm" data-action="cat-create">Crea</button>
       </div>
       <div class="row" style="margin-bottom:14px">
-        <select id="catalogPick" class="grow"></select>
+        <select id="catalogPick" class="grow pick-cat"></select>
         <button class="btn btn-sm" data-action="cat-insert">Inserisci</button>
       </div>
 
@@ -286,7 +300,7 @@
         <input type="text" id="itemName" class="grow" placeholder="Cosa aggiungi? (es. spazzolino)">
       </div>
       <div class="row" style="margin-bottom:8px">
-        <select id="itemCat" class="grow"></select>
+        <select id="itemCat" class="grow pick-cat"></select>
       </div>
       <div class="row">
         <select id="itemQty" class="grow"></select>
@@ -304,7 +318,7 @@
         <input type="text" id="newListName" class="grow" placeholder="Nuova lista (es. gare corsa)">
       </div>
       <div class="row">
-        <select id="newListBase" class="grow"></select>
+        <select id="newListBase" class="grow pick-list"></select>
         <button class="btn btn-primary" data-action="list-create">Crea lista</button>
       </div>
     </div>
@@ -326,7 +340,7 @@
         <input type="text" id="catalogItemName" class="grow" placeholder="Cosa ci metti dentro?">
       </div>
       <div class="row" style="margin-bottom:8px">
-        <select id="catalogItemCat" class="grow"></select>
+        <select id="catalogItemCat" class="grow pick-cat"></select>
       </div>
       <div class="row">
         <select id="catalogQty" class="grow"></select>
@@ -396,7 +410,7 @@
     </div>
   </section>
 
-  <div class="credit"><span>Powered by Andrea Azzerboni</span><span class="ver">versione 1.4</span></div>
+  <div class="credit"><span>Powered by Andrea Azzerboni</span><span class="ver">versione 1.5</span></div>
 
 </main>
 
@@ -764,7 +778,7 @@ function renderTrip(){
     return;
   }
   box.innerHTML = groups.map(g => {
-    const open = (q || f !== "all") ? true : !t.closed[g.id];
+    const open = q ? true : !t.closed[g.id];
     const gs = stats(g.tutti);
     const tuttiPresi = gs.target > 0 && gs.packed === gs.target;
     const tuttiEsclusi = gs.total > 0 && gs.skip === gs.total;
